@@ -32,6 +32,16 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser",
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Permita que o ZenMotion use os sensores de movimento durante suas atividades de equilíbrio."
+        }
       ]
     ],
     "experiments": {

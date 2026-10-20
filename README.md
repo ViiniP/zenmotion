@@ -1,56 +1,60 @@
-# Welcome to your Expo app 👋
+# ZenMotion
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo de Mobile II com Expo SDK 57, sensores de movimento e histórico local.
 
-## Get started
+## Executar o app e a API local
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Depois de instalar as dependências com `npm install`, abra dois terminais na pasta do projeto:
 
 ```bash
-npm run reset-project
+# Terminal 1: API de desenvolvimento
+npm run api
+
+# Terminal 2: aplicativo
+npm start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+O JSON Server usa `server/db.json` como armazenamento persistente e expõe `GET /sessions` e `POST /sessions` na porta 3001. Os registros permanecem nesse arquivo após reiniciar a API.
 
-### Other setup steps
+Para testar pelo navegador no mesmo computador, o endereço padrão é `http://localhost:3001`.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Para testar em um celular físico:
 
-## Learn more
+1. Copie `.env.example` para `.env.local`.
+2. Use `ipconfig` para localizar o IPv4 do computador na rede Wi-Fi.
+3. Configure `EXPO_PUBLIC_API_URL=http://IP_DO_COMPUTADOR:3001` no arquivo. `localhost` no celular aponta para o próprio celular.
+4. Mantenha celular e computador na mesma rede, com a porta 3001 acessível. Recarregue o aplicativo após alterar a variável.
 
-To learn more about developing your project with Expo, look at the following resources:
+No emulador Android padrão, o endereço do computador é `http://10.0.2.2:3001`.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Essa API local serve para desenvolvimento e demonstração em rede local. Não possui contas de usuário nem fica disponível pela internet por iniciar um túnel do Expo.
 
-## Join the community
+## Consultas e envio
 
-Join our community of developers creating universal apps.
+- `src/services/api.ts`: instância do Axios, endereço e tempo limite.
+- `src/services/sessionsApi.ts`: GET e POST, validação das respostas e comparação de IDs para evitar reenvio de sessões já recebidas.
+- `src/providers/ApiProvider.tsx`: cache do TanStack Query compartilhado entre as telas, com consultas consideradas recentes por 60 segundos.
+- `src/hooks/useSessionApi.ts`: `useQuery`, `useMutation` e invalidação da consulta após cada tentativa de envio, inclusive se só parte do lote tiver sido enviada.
+- `src/components/SessionSync.tsx`: consulta, envio manual e mensagens de carregamento, sucesso e erro no Histórico.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+O histórico do aparelho continua no AsyncStorage. A API e o cache em memória não substituem esse armazenamento. A falha de rede não apaga as sessões locais. Ao repetir o envio, uma nova consulta verifica quais IDs já chegaram ao servidor.
+
+## Conferência desta etapa
+
+A revisão e o roteiro de teste dos sensores estão em [docs/hardware.md](docs/hardware.md). Para executar os testes de hardware simulados, use `npm run test:hardware`.
+
+A organização do visual e a origem das imagens estão em [docs/visual-assets.md](docs/visual-assets.md). A conferência das telas está em [design-qa.md](design-qa.md).
+
+1. Inicie API e app e abra Histórico: confira a consulta ao servidor.
+2. Conclua e salve uma sessão real no celular.
+3. No Histórico, toque em **Enviar sessões salvas**. Confira a mensagem de envio e a nova consulta, que deve mostrar o registro no servidor.
+4. Repita o envio: não deve criar outra cópia da mesma sessão.
+5. Pare a API e atualize a consulta: o app deve mostrar erro e manter o histórico local disponível.
+6. Salve uma sessão com a API desligada, reinicie o app e confirme que ela continua no histórico. Reinicie a API e faça o envio manual.
+
+Validação do código:
+
+```bash
+npx expo lint
+npx tsc --noEmit
+```
