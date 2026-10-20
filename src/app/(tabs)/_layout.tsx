@@ -10,9 +10,13 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        headerStyle: { backgroundColor: colors.background },
+        headerStyle: {
+          backgroundColor: colors.background,
+        },
         headerTintColor: colors.text,
-        sceneStyle: { backgroundColor: colors.background },
+        sceneStyle: {
+          backgroundColor: colors.background,
+        },
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
@@ -22,13 +26,73 @@ export default function TabsLayout() {
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
-        tabBarLabelStyle: { fontSize: 12, lineHeight: 18, fontFamily: fonts.bold },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          lineHeight: 18,
+          fontFamily: fonts.bold,
+        },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: "Início", tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={25} color={color} accessible={false} aria-hidden /> }} />
-      <Tabs.Screen name="atividades" options={{ title: "Atividades", tabBarIcon: ({ color }) => <Ionicons name="radio-button-on-outline" size={26} color={color} accessible={false} aria-hidden /> }} />
-      <Tabs.Screen name="historico" options={{ title: "Histórico", tabBarIcon: ({ color }) => <Ionicons name="time-outline" size={26} color={color} accessible={false} aria-hidden /> }} />
-      <Tabs.Screen name="perfil" options={{ title: "Perfil", tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={25} color={color} accessible={false} aria-hidden /> }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Início",
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name="home-outline"
+              size={25}
+              color={color}
+              accessible={false}
+              aria-hidden
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="atividades"
+        options={{
+          title: "Atividades",
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name="radio-button-on-outline"
+              size={26}
+              color={color}
+              accessible={false}
+              aria-hidden
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="historico"
+        options={{
+          title: "Histórico",
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name="time-outline"
+              size={26}
+              color={color}
+              accessible={false}
+              aria-hidden
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="perfil"
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name="person-outline"
+              size={25}
+              color={color}
+              accessible={false}
+              aria-hidden
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

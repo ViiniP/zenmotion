@@ -20,7 +20,10 @@ export function FormField({ label, error, ...inputProps }: FormFieldProps) {
         style={[styles.input, error && styles.inputError]}
       />
       {error && (
-        <Text accessibilityRole="alert" style={styles.error}>
+        <Text
+          accessibilityRole="alert"
+          style={styles.error}
+        >
           {error}
         </Text>
       )}
@@ -29,8 +32,14 @@ export function FormField({ label, error, ...inputProps }: FormFieldProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { gap: 8 },
-  label: { color: colors.textSecondary, fontSize: 14, fontFamily: fonts.bold },
+  container: {
+    gap: 8,
+  },
+  label: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    fontFamily: fonts.bold,
+  },
   input: {
     minHeight: 52,
     borderWidth: 1,
@@ -43,6 +52,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  inputError: { borderColor: colors.error, backgroundColor: "#302034" },
-  error: { color: colors.error, fontFamily: fonts.regular, fontSize: 13, lineHeight: 20 },
+  inputError: {
+    borderColor: colors.error,
+    backgroundColor: "#302034",
+  },
+  error: {
+    color: colors.error,
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    lineHeight: 20,
+  },
 });

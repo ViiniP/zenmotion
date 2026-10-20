@@ -18,7 +18,10 @@ import { useSessionStore } from "../stores/useSessionStore";
 
 function RootContent() {
   const [fontsLoaded, fontError] = useFonts({
-    Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold,
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
     ...Ionicons.font,
   });
   const loadProfile = useZenStore((state) => state.loadProfile);
@@ -41,15 +44,26 @@ function RootContent() {
         <StatusBar style="light" />
         {loadStatus === "error" ? (
           <>
-            <Text accessibilityRole="alert" style={styles.message}>
+            <Text
+              accessibilityRole="alert"
+              style={styles.message}
+            >
               {storageError}
             </Text>
-            <AppButton title="Tentar novamente" onPress={loadProfile} />
+            <AppButton
+              title="Tentar novamente"
+              onPress={loadProfile}
+            />
           </>
         ) : (
           <>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.message}>Preparando seu momento de calma...</Text>
+            <ActivityIndicator
+              size="large"
+              color={colors.primary}
+            />
+            <Text style={styles.message}>
+              Preparando seu momento de calma...
+            </Text>
           </>
         )}
       </View>
@@ -62,22 +76,47 @@ function RootContent() {
       {/* A pilha permite abrir a sessão por cima das abas. */}
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.background },
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
           headerTintColor: colors.text,
           headerShadowVisible: false,
-          contentStyle: { backgroundColor: colors.background },
+          contentStyle: {
+            backgroundColor: colors.background,
+          },
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="sessao/[atividade]" options={{ title: "Sessão", headerShown: false }} />
-        <Stack.Screen name="resultado/[id]" options={{ title: "Resultado", headerShown: false }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="sessao/[atividade]"
+          options={{
+            title: "Sessão",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="resultado/[id]"
+          options={{
+            title: "Resultado",
+            headerShown: false,
+          }}
+        />
       </Stack>
     </ApiProvider>
   );
 }
 
 export default function RootLayout() {
-  return <SafeAreaProvider><RootContent /></SafeAreaProvider>;
+  return (
+    <SafeAreaProvider>
+      <RootContent />
+    </SafeAreaProvider>
+  );
 }
 
 const styles = StyleSheet.create({

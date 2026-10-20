@@ -32,12 +32,14 @@ Essa API local serve para desenvolvimento e demonstração em rede local. Não p
 ## Consultas e envio
 
 - `src/services/api.ts`: instância do Axios, endereço e tempo limite.
-- `src/services/sessionsApi.ts`: GET e POST, validação das respostas e comparação de IDs para evitar reenvio de sessões já recebidas.
+- `src/services/sessionsApi.ts`: GET para consultar e POST para enviar; uma comparação simples de IDs evita reenvio de sessões já recebidas.
 - `src/providers/ApiProvider.tsx`: cache do TanStack Query compartilhado entre as telas, com consultas consideradas recentes por 60 segundos.
 - `src/hooks/useSessionApi.ts`: `useQuery`, `useMutation` e invalidação da consulta após cada tentativa de envio, inclusive se só parte do lote tiver sido enviada.
 - `src/components/SessionSync.tsx`: consulta, envio manual e mensagens de carregamento, sucesso e erro no Histórico.
 
 O histórico do aparelho continua no AsyncStorage. A API e o cache em memória não substituem esse armazenamento. A falha de rede não apaga as sessões locais. Ao repetir o envio, uma nova consulta verifica quais IDs já chegaram ao servidor.
+
+O passo a passo da integração simplificada está em [docs/api.md](docs/api.md). Ela utiliza o formato esperado de resposta da API, sem comparação de conteúdo ou validação detalhada dos registros remotos. O botão de atualizar permite consultar o servidor manualmente.
 
 ## Conferência desta etapa
 

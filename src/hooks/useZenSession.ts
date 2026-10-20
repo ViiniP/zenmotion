@@ -14,13 +14,17 @@ import { createSessionRecord } from "../utils/sessionRecord";
 export function useZenSession(durationSeconds: number) {
   const [status, setStatus] = useState<SessionStatus>("ready");
   const [reading, setReading] = useState<StabilityReading | null>(null);
-  const [progress, setProgress] = useState({ ...INITIAL_PROGRESS });
+  const [progress, setProgress] = useState({
+    ...INITIAL_PROGRESS,
+  });
   const [message, setMessage] = useState<string | null>(null);
   const [result, setResult] = useState<SessionRecord | null>(null);
 
   // Refs mantêm os acumuladores disponíveis nos callbacks dos sensores.
   const statusRef = useRef<SessionStatus>("ready");
-  const progressRef = useRef({ ...INITIAL_PROGRESS });
+  const progressRef = useRef({
+    ...INITIAL_PROGRESS,
+  });
   const lastReadingAt = useRef<number | null>(null);
   const sensorsRef = useRef<ReturnType<typeof createMotionSensors> | null>(
     null,
@@ -117,14 +121,27 @@ export function useZenSession(durationSeconds: number) {
 
   const reset = useCallback(() => {
     sensorsRef.current?.stop();
-    progressRef.current = { ...INITIAL_PROGRESS };
+    progressRef.current = {
+      ...INITIAL_PROGRESS,
+    };
     lastReadingAt.current = null;
-    setProgress({ ...INITIAL_PROGRESS });
+    setProgress({
+      ...INITIAL_PROGRESS,
+    });
     setReading(null);
     setMessage(null);
     changeStatus("ready");
     setResult(null);
   }, [changeStatus]);
 
-  return { status, reading, progress, message, result, start, pause, reset };
+  return {
+    status,
+    reading,
+    progress,
+    message,
+    result,
+    start,
+    pause,
+    reset,
+  };
 }

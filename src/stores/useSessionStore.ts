@@ -27,16 +27,23 @@ export const useSessionStore = create<SessionState>()((set, get) => {
     loadSessions: async () => {
       if (get().loadStatus === "ready") return true;
       if (loadPromise) return loadPromise;
-      set({ loadStatus: "loading", loadError: null });
+      set({
+        loadStatus: "loading",
+        loadError: null,
+      });
       loadPromise = (async () => {
         try {
           const sessions = await readSessions();
-          set({ sessions, loadStatus: "ready" });
+          set({
+            sessions,
+            loadStatus: "ready",
+          });
           return true;
         } catch {
           set({
             loadStatus: "error",
-            loadError: "Não foi possível carregar o histórico. Tente novamente.",
+            loadError:
+              "Não foi possível carregar o histórico. Tente novamente.",
           });
           return false;
         }
@@ -50,8 +57,13 @@ export const useSessionStore = create<SessionState>()((set, get) => {
 
     saveSession: async (session) => {
       if (get().isSaving) return false;
-      const record = { ...session };
-      set({ isSaving: true, saveError: null });
+      const record = {
+        ...session,
+      };
+      set({
+        isSaving: true,
+        saveError: null,
+      });
       try {
         // Nunca sobrescreve um histórico que ainda não conseguimos recuperar.
         if (!(await get().loadSessions())) throw new Error("Falha na leitura.");
@@ -61,15 +73,20 @@ export const useSessionStore = create<SessionState>()((set, get) => {
         );
         await writeSessions(sessions);
         // Resultado e histórico só recebem o registro após a gravação.
-        set({ sessions });
+        set({
+          sessions,
+        });
         return true;
       } catch {
         set({
-          saveError: "Não foi possível salvar a sessão. Seu resultado continua nesta tela. Tente novamente.",
+          saveError:
+            "Não foi possível salvar a sessão. Seu resultado continua nesta tela. Tente novamente.",
         });
         return false;
       } finally {
-        set({ isSaving: false });
+        set({
+          isSaving: false,
+        });
       }
     },
   };

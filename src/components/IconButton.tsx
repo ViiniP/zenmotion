@@ -11,18 +11,52 @@ type IconButtonProps = {
   disabled?: boolean;
 };
 
-export function IconButton({ name, label, onPress, disabled }: IconButtonProps) {
+export function IconButton({
+  name,
+  label,
+  onPress,
+  disabled,
+}: IconButtonProps) {
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label}
-      disabled={disabled} accessibilityState={{ disabled: !!disabled }} aria-disabled={!!disabled}
-      onPress={onPress} style={({ pressed }) => [styles.button, pressed && styles.pressed, disabled && styles.disabled]}>
-      <Ionicons name={name} size={25} color={colors.text} accessible={false} aria-hidden />
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      disabled={disabled}
+      accessibilityState={{
+        disabled: !!disabled,
+      }}
+      aria-disabled={!!disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.button,
+        pressed && styles.pressed,
+        disabled && styles.disabled,
+      ]}
+    >
+      <Ionicons
+        name={name}
+        size={25}
+        color={colors.text}
+        accessible={false}
+        aria-hidden
+      />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  button: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#FFFFFF18", alignItems: "center", justifyContent: "center" },
-  pressed: { opacity: 0.65 },
-  disabled: { opacity: 0.4 },
+  button: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF18",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pressed: {
+    opacity: 0.65,
+  },
+  disabled: {
+    opacity: 0.4,
+  },
 });

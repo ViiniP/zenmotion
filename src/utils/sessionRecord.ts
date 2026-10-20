@@ -39,7 +39,8 @@ export function createSessionRecord(
     averageStability: averageStability(progress),
     stableMs: progress.stableMs,
   };
-  if (!isSessionRecord(record)) throw new Error("Resultado de sessão inválido.");
+  if (!isSessionRecord(record))
+    throw new Error("Resultado de sessão inválido.");
   return record;
 }
 
@@ -55,13 +56,4 @@ export function formatSessionDate(completedAt: string) {
 
 export function formatStableTime(stableMs: number) {
   return `${(stableMs / 1000).toFixed(1).replace(".", ",")} s`;
-}
-
-export function sameSession(a: SessionRecord, b: SessionRecord) {
-  return a.id === b.id &&
-    a.activity === b.activity &&
-    a.durationSeconds === b.durationSeconds &&
-    a.completedAt === b.completedAt &&
-    a.averageStability === b.averageStability &&
-    a.stableMs === b.stableMs;
 }

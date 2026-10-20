@@ -18,7 +18,9 @@ export function AppButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
+      accessibilityState={{
+        disabled,
+      }}
       aria-disabled={disabled}
       disabled={disabled}
       onPress={onPress}
@@ -30,7 +32,15 @@ export function AppButton({
         disabled && styles.disabled,
       ]}
     >
-      <Text style={[styles.label, variant === "secondary" && styles.secondaryLabel, variant === "text" && styles.textLabel]}>{title}</Text>
+      <Text
+        style={[
+          styles.label,
+          variant === "secondary" && styles.secondaryLabel,
+          variant === "text" && styles.textLabel,
+        ]}
+      >
+        {title}
+      </Text>
     </Pressable>
   );
 }
@@ -48,14 +58,25 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.75,
   },
-  disabled: { opacity: 0.5 },
+  disabled: {
+    opacity: 0.5,
+  },
   label: {
     color: colors.background,
     fontSize: 17,
     fontFamily: fonts.bold,
   },
-  secondary: { backgroundColor: colors.surfaceSoft },
-  textButton: { backgroundColor: "transparent", paddingVertical: 10 },
-  secondaryLabel: { color: colors.text },
-  textLabel: { color: colors.primary },
+  secondary: {
+    backgroundColor: colors.surfaceSoft,
+  },
+  textButton: {
+    backgroundColor: "transparent",
+    paddingVertical: 10,
+  },
+  secondaryLabel: {
+    color: colors.text,
+  },
+  textLabel: {
+    color: colors.primary,
+  },
 });

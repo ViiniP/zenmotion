@@ -20,5 +20,17 @@ export const fonts = {
   heading: "Nunito_800ExtraBold",
 };
 
-export const spacing = { xs: 8, sm: 12, md: 16, lg: 20, xl: 28, xxl: 36 };
-export const radii = { small: 16, card: 24, large: 28, pill: 999 };
+export const spacing = {
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 20,
+  xl: 28,
+  xxl: 36,
+};
+export const radii = {
+  small: 16,
+  card: 24,
+  large: 28,
+  pill: 999,
+};

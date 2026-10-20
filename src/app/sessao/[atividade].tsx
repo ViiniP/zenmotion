@@ -32,7 +32,12 @@ export default function SessionScreen() {
         duration={Number(duracao)}
         onExit={goBack}
         onSaved={(id) =>
-          router.replace({ pathname: "/resultado/[id]", params: { id } })
+          router.replace({
+            pathname: "/resultado/[id]",
+            params: {
+              id,
+            },
+          })
         }
       />
     );
@@ -44,7 +49,10 @@ export default function SessionScreen() {
       <Text style={styles.description}>
         Escolha uma atividade e uma duração válidas para continuar.
       </Text>
-      <AppButton title="Voltar" onPress={goBack} />
+      <AppButton
+        title="Voltar"
+        onPress={goBack}
+      />
     </Screen>
   );
 }

@@ -11,24 +11,46 @@ export function HistoryStatus() {
   const loadSessions = useSessionStore((state) => state.loadSessions);
 
   return (
-    <Screen><View style={styles.container}>
-      {loadStatus === "error" ? (
-        <>
-          <Text accessibilityRole="alert" style={styles.error}>{loadError}</Text>
-          <AppButton title="Tentar carregar novamente" onPress={loadSessions} />
-        </>
-      ) : (
-        <>
-          <ActivityIndicator color={colors.primary} />
-          <Text style={styles.description}>Carregando histórico...</Text>
-        </>
-      )}
-    </View></Screen>
+    <Screen>
+      <View style={styles.container}>
+        {loadStatus === "error" ? (
+          <>
+            <Text
+              accessibilityRole="alert"
+              style={styles.error}
+            >
+              {loadError}
+            </Text>
+            <AppButton
+              title="Tentar carregar novamente"
+              onPress={loadSessions}
+            />
+          </>
+        ) : (
+          <>
+            <ActivityIndicator color={colors.primary} />
+            <Text style={styles.description}>Carregando histórico...</Text>
+          </>
+        )}
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, gap: 20 },
-  description: { color: colors.textSecondary, fontSize: 18, fontFamily: fonts.regular },
-  error: { color: colors.error, fontSize: 18, lineHeight: 26, fontFamily: fonts.regular },
+  container: {
+    padding: 24,
+    gap: 20,
+  },
+  description: {
+    color: colors.textSecondary,
+    fontSize: 18,
+    fontFamily: fonts.regular,
+  },
+  error: {
+    color: colors.error,
+    fontSize: 18,
+    lineHeight: 26,
+    fontFamily: fonts.regular,
+  },
 });

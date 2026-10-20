@@ -20,7 +20,9 @@ export async function readSessions(): Promise<SessionRecord[]> {
   if (stored === null) return [];
   const data: unknown = JSON.parse(stored);
   validateSessions(data);
-  return data.sort((a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt));
+  return data.sort(
+    (a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt),
+  );
 }
 
 export async function writeSessions(sessions: SessionRecord[]): Promise<void> {

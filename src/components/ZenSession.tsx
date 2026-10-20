@@ -1,7 +1,14 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { colors, fonts } from "../constants/theme";
@@ -67,20 +74,44 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
   if (finished) instruction = "Sessão concluída!";
 
   return (
-    <LinearGradient colors={["#191630", "#332766", "#78508A"]} style={styles.screen}>
-      <Image source={require("../../assets/images/zen-landscape.png")} style={styles.landscape} accessible={false} />
-      <SafeAreaView style={styles.screen} edges={["top", "left", "right", "bottom"]}>
-        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <LinearGradient
+      colors={["#191630", "#332766", "#78508A"]}
+      style={styles.screen}
+    >
+      <Image
+        source={require("../../assets/images/zen-landscape.png")}
+        style={styles.landscape}
+        accessible={false}
+      />
+      <SafeAreaView
+        style={styles.screen}
+        edges={["top", "left", "right", "bottom"]}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.header}>
-            <IconButton name="close-outline" label={finished ? "Sair sem salvar" : "Voltar às atividades"} onPress={onExit} disabled={isSaving} />
+            <IconButton
+              name="close-outline"
+              label={finished ? "Sair sem salvar" : "Voltar às atividades"}
+              onPress={onExit}
+              disabled={isSaving}
+            />
             <Text style={styles.title}>Equilíbrio Zen</Text>
             <View style={styles.headerSpace} />
           </View>
-          <Text accessibilityLiveRegion="polite" style={styles.description}>
+          <Text
+            accessibilityLiveRegion="polite"
+            style={styles.description}
+          >
             {instruction}
           </Text>
 
-          <View accessible={false} style={styles.board}>
+          <View
+            accessible={false}
+            style={styles.board}
+          >
             <View style={styles.innerRing} />
             <View style={styles.target} />
             <View
@@ -89,12 +120,22 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
                 session.reading && !session.reading.inRange && styles.outside,
                 {
                   transform: [
-                    { translateX: (session.reading?.offsetX ?? 0) * 90 - 14 },
-                    { translateY: (session.reading?.offsetY ?? 0) * 90 - 14 },
+                    {
+                      translateX: (session.reading?.offsetX ?? 0) * 90 - 14,
+                    },
+                    {
+                      translateY: (session.reading?.offsetY ?? 0) * 90 - 14,
+                    },
                   ],
                 },
               ]}
-            ><Image source={require("../../assets/images/zen-orb.png")} style={styles.sphereImage} accessible={false} /></View>
+            >
+              <Image
+                source={require("../../assets/images/zen-orb.png")}
+                style={styles.sphereImage}
+                accessible={false}
+              />
+            </View>
           </View>
 
           <Text
@@ -105,10 +146,18 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
           </Text>
           <Text style={styles.duration}>de {duration} segundos</Text>
 
-          <StatRow items={[
-            { value: session.reading ? `${session.reading.stability}%` : "—", label: "estabilidade agora" },
-            { value: `${(session.progress.stableMs / 1000).toFixed(1).replace(".", ",")} s`, label: "na faixa" },
-          ]} />
+          <StatRow
+            items={[
+              {
+                value: session.reading ? `${session.reading.stability}%` : "—",
+                label: "estabilidade agora",
+              },
+              {
+                value: `${(session.progress.stableMs / 1000).toFixed(1).replace(".", ",")} s`,
+                label: "na faixa",
+              },
+            ]}
+          />
           <Text style={styles.average}>
             {finished
               ? `Pontuação: ${average} de 100`
@@ -116,20 +165,36 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
           </Text>
 
           {session.message && (
-            <Text accessibilityRole="alert" style={styles.error}>
+            <Text
+              accessibilityRole="alert"
+              style={styles.error}
+            >
               {session.message}
             </Text>
           )}
           {finished && hasTriedSaving && saveError && (
-            <Text accessibilityRole="alert" style={styles.error}>
+            <Text
+              accessibilityRole="alert"
+              style={styles.error}
+            >
               {saveError}
             </Text>
           )}
 
           {session.status === "running" ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Pausar" onPress={session.pause}
-              style={({ pressed }) => [styles.pause, pressed && styles.pressed]}>
-              <Ionicons name="pause" size={30} color={colors.background} accessible={false} aria-hidden />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Pausar"
+              onPress={session.pause}
+              style={({ pressed }) => [styles.pause, pressed && styles.pressed]}
+            >
+              <Ionicons
+                name="pause"
+                size={30}
+                color={colors.background}
+                accessible={false}
+                aria-hidden
+              />
             </Pressable>
           ) : finished ? (
             <AppButton
@@ -153,14 +218,20 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
             />
           )}
           {session.status === "paused" && (
-            <AppButton title="Recomeçar" variant="secondary" onPress={session.reset} />
+            <AppButton
+              title="Recomeçar"
+              variant="secondary"
+              onPress={session.reset}
+            />
           )}
-          {session.status !== "running" && <AppButton
-            title={finished ? "Sair sem salvar" : "Voltar às atividades"}
-            onPress={onExit}
-            disabled={isSaving}
-            variant="text"
-          />}
+          {session.status !== "running" && (
+            <AppButton
+              title={finished ? "Sair sem salvar" : "Voltar às atividades"}
+              onPress={onExit}
+              disabled={isSaving}
+              variant="text"
+            />
+          )}
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -168,15 +239,60 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  container: { ...screenContent, paddingTop: 12, gap: 12 },
-  header: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 4 },
-  headerSpace: { width: 48 },
-  title: { flex: 1, color: colors.text, fontSize: 19, fontFamily: fonts.heading, textAlign: "center" },
-  description: { color: "#D7CFE9", fontFamily: fonts.regular, fontSize: 15, lineHeight: 22, textAlign: "center", minHeight: 44 },
-  duration: { color: "#C8BDDE", fontFamily: fonts.regular, fontSize: 15, textAlign: "center", marginTop: -8 },
-  landscape: { position: "absolute", bottom: 0, width: "100%", height: 220, opacity: 0.24 },
-  innerRing: { width: "72%", aspectRatio: 1, position: "absolute", borderWidth: 1, borderColor: "#FFFFFF16", borderRadius: 999 },
+  screen: {
+    flex: 1,
+  },
+  container: {
+    ...screenContent,
+    paddingTop: 12,
+    gap: 12,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 4,
+  },
+  headerSpace: {
+    width: 48,
+  },
+  title: {
+    flex: 1,
+    color: colors.text,
+    fontSize: 19,
+    fontFamily: fonts.heading,
+    textAlign: "center",
+  },
+  description: {
+    color: "#D7CFE9",
+    fontFamily: fonts.regular,
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: "center",
+    minHeight: 44,
+  },
+  duration: {
+    color: "#C8BDDE",
+    fontFamily: fonts.regular,
+    fontSize: 15,
+    textAlign: "center",
+    marginTop: -8,
+  },
+  landscape: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: 220,
+    opacity: 0.24,
+  },
+  innerRing: {
+    width: "72%",
+    aspectRatio: 1,
+    position: "absolute",
+    borderWidth: 1,
+    borderColor: "#FFFFFF16",
+    borderRadius: 999,
+  },
   board: {
     width: "100%",
     maxWidth: 220,
@@ -206,16 +322,45 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: "transparent",
   },
-  sphereImage: { width: 36, height: 36, left: -4, top: -4 },
-  outside: { backgroundColor: "#FF8C9666" },
+  sphereImage: {
+    width: 36,
+    height: 36,
+    left: -4,
+    top: -4,
+  },
+  outside: {
+    backgroundColor: "#FF8C9666",
+  },
   clock: {
     color: colors.text,
     fontSize: 56,
     fontFamily: fonts.regular,
     textAlign: "center",
   },
-  average: { color: "#E2D7EF", fontFamily: fonts.medium, fontSize: 14, textAlign: "center" },
-  error: { color: "#FFBBC2", fontFamily: fonts.medium, fontSize: 15, lineHeight: 22, textAlign: "center" },
-  pause: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.primary, alignSelf: "center", alignItems: "center", justifyContent: "center", marginTop: 4 },
-  pressed: { opacity: 0.75 },
+  average: {
+    color: "#E2D7EF",
+    fontFamily: fonts.medium,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  error: {
+    color: "#FFBBC2",
+    fontFamily: fonts.medium,
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: "center",
+  },
+  pause: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: colors.primary,
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+  pressed: {
+    opacity: 0.75,
+  },
 });

@@ -24,10 +24,16 @@ export const useZenStore = create<ZenState>()((set, get) => ({
       return;
     }
 
-    set({ loadStatus: "loading", storageError: null });
+    set({
+      loadStatus: "loading",
+      storageError: null,
+    });
     try {
       const profile = await readProfile();
-      set({ profile, loadStatus: "ready" });
+      set({
+        profile,
+        loadStatus: "ready",
+      });
     } catch {
       set({
         loadStatus: "error",
@@ -42,12 +48,20 @@ export const useZenStore = create<ZenState>()((set, get) => ({
     }
 
     // A cópia mantém o mesmo conteúdo durante a gravação assíncrona.
-    const profileToSave = { ...profile };
-    set({ isSaving: true, storageError: null });
+    const profileToSave = {
+      ...profile,
+    };
+    set({
+      isSaving: true,
+      storageError: null,
+    });
     try {
       await writeProfile(profileToSave);
       // Só compartilha o novo perfil depois de confirmar a gravação local.
-      set({ profile: profileToSave, isSaving: false });
+      set({
+        profile: profileToSave,
+        isSaving: false,
+      });
       return true;
     } catch {
       set({

@@ -11,20 +11,37 @@ export function createTsLoader(mocks = {}, globals = {}) {
     let filename = path.resolve(relativePath);
     if (!path.extname(filename)) filename += ".ts";
     if (cache.has(filename)) return cache.get(filename).exports;
-    const module = { exports: {} };
+    const module = {
+      exports: {},
+    };
     cache.set(filename, module);
     const nativeRequire = createRequire(filename);
     const code = ts.transpileModule(readFileSync(filename, "utf8"), {
-      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+      },
     }).outputText;
-    vm.runInNewContext(code, {
-      module,
-      exports: module.exports,
-      require: (name) => mocks[name] ?? (name.startsWith(".")
-        ? load(path.resolve(path.dirname(filename), name)) : nativeRequire(name)),
-      Date, performance, setInterval, clearInterval,
-      ...globals,
-    }, { filename });
+    vm.runInNewContext(
+      code,
+      {
+        module,
+        exports: module.exports,
+        require: (name) =>
+          mocks[name] ??
+          (name.startsWith(".")
+            ? load(path.resolve(path.dirname(filename), name))
+            : nativeRequire(name)),
+        Date,
+        performance,
+        setInterval,
+        clearInterval,
+        ...globals,
+      },
+      {
+        filename,
+      },
+    );
     return module.exports;
   }
   return load;

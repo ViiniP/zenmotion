@@ -14,7 +14,9 @@ export function createMotionSensors(
   onError: (message: string) => void,
 ) {
   let revision = 0;
-  let subscriptions: { remove: () => void }[] = [];
+  let subscriptions: {
+    remove: () => void;
+  }[] = [];
   let watchdog: ReturnType<typeof setInterval> | null = null;
 
   function stop() {
@@ -82,7 +84,11 @@ export function createMotionSensors(
       subscriptions.push(
         Accelerometer.addListener((value) => {
           if (attempt !== revision || !isFiniteVector(value)) return;
-          rawAcceleration = { x: value.x, y: value.y, z: value.z };
+          rawAcceleration = {
+            x: value.x,
+            y: value.y,
+            z: value.z,
+          };
           const factor = motionSettings.smoothingFactor;
 
           // Suaviza pequenas oscilações do acelerômetro para posicionar a esfera.
@@ -139,5 +145,8 @@ export function createMotionSensors(
     }
   }
 
-  return { start, stop };
+  return {
+    start,
+    stop,
+  };
 }
