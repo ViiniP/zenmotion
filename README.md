@@ -2,6 +2,8 @@
 
 Aplicativo de Mobile II com Expo SDK 57, sensores de movimento e histórico local.
 
+Para estudar o código com o grupo, siga o [guia completo de estudo](docs/guia-estudo.md), com responsabilidades por arquivo, fluxos de execução, exemplos, exercícios e roteiro de apresentação.
+
 ## Executar o app e a API local
 
 Depois de instalar as dependências com `npm install`, abra dois terminais na pasta do projeto:
