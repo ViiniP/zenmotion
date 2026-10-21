@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fonts } from "../constants/theme";
+import { cores, fontes } from "../constants/theme";
 
 export function StatRow({
   items,
@@ -11,27 +11,27 @@ export function StatRow({
   }[];
 }) {
   return (
-    <View style={styles.card}>
-      {items.map((item, index) => (
+    <View style={estilos.cartao}>
+      {items.map((item, indice) => (
         <View
           key={item.label}
-          style={[styles.item, index > 0 && styles.divider]}
+          style={[estilos.item, indice > 0 && estilos.divisor]}
         >
-          <Text style={styles.value}>{item.value}</Text>
-          <Text style={styles.label}>{item.label}</Text>
+          <Text style={estilos.valor}>{item.value}</Text>
+          <Text style={estilos.rotulo}>{item.label}</Text>
         </View>
       ))}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
+const estilos = StyleSheet.create({
+  cartao: {
     flexDirection: "row",
     borderRadius: 24,
-    backgroundColor: colors.surface,
+    backgroundColor: cores.superficie,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: cores.borda,
     paddingVertical: 17,
   },
   item: {
@@ -41,18 +41,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  divider: {
+  divisor: {
     borderLeftWidth: 1,
-    borderLeftColor: colors.border,
+    borderLeftColor: cores.borda,
   },
-  value: {
-    color: colors.text,
-    fontFamily: fonts.heading,
+  valor: {
+    color: cores.texto,
+    fontFamily: fontes.titulo,
     fontSize: 28,
   },
-  label: {
-    color: colors.textSecondary,
-    fontFamily: fonts.regular,
+  rotulo: {
+    color: cores.textoSecundario,
+    fontFamily: fontes.regular,
     fontSize: 14,
     textAlign: "center",
   },

@@ -13,81 +13,70 @@ type SessionState = {
   saveSession: (session: SessionRecord) => Promise<boolean>;
 };
 
-export const useSessionStore = create<SessionState>()((set, get) => {
-  // Quem precisar do histórico durante a leitura aguarda a mesma operação.
-  let loadPromise: Promise<boolean> | null = null;
+export const useSessionStore = create<SessionState>()((set, get) => ({
+  sessions: [],
+  loadStatus: "idle",
+  loadError: null,
+  isSaving: false,
+  saveError: null,
 
-  return {
-    sessions: [],
-    loadStatus: "idle",
-    loadError: null,
-    isSaving: false,
-    saveError: null,
-
-    loadSessions: async () => {
-      if (get().loadStatus === "ready") return true;
-      if (loadPromise) return loadPromise;
+  loadSessions: async () => {
+    if (get().loadStatus === "ready") return true;
+    if (get().loadStatus === "loading") return false;
+    set({
+      loadStatus: "loading",
+      loadError: null,
+    });
+    try {
+      const sessoes = await readSessions();
       set({
-        loadStatus: "loading",
-        loadError: null,
+        sessions: sessoes,
+        loadStatus: "ready",
       });
-      loadPromise = (async () => {
-        try {
-          const sessions = await readSessions();
-          set({
-            sessions,
-            loadStatus: "ready",
-          });
-          return true;
-        } catch {
-          set({
-            loadStatus: "error",
-            loadError:
-              "Não foi possível carregar o histórico. Tente novamente.",
-          });
-          return false;
-        }
-      })();
-      try {
-        return await loadPromise;
-      } finally {
-        loadPromise = null;
-      }
-    },
-
-    saveSession: async (session) => {
-      if (get().isSaving) return false;
-      const record = {
-        ...session,
-      };
+      return true;
+    } catch {
       set({
-        isSaving: true,
-        saveError: null,
+        loadStatus: "error",
+        loadError: "Não foi possível carregar o histórico. Tente novamente.",
       });
-      try {
-        // Nunca sobrescreve um histórico que ainda não conseguimos recuperar.
-        if (!(await get().loadSessions())) throw new Error("Falha na leitura.");
-        if (get().sessions.some((saved) => saved.id === record.id)) return true;
-        const sessions = [record, ...get().sessions].sort(
-          (a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt),
-        );
-        await writeSessions(sessions);
-        // Resultado e histórico só recebem o registro após a gravação.
+      return false;
+    }
+  },
+
+  saveSession: async (sessao) => {
+    if (get().isSaving) return false;
+    set({
+      isSaving: true,
+      saveError: null,
+    });
+    try {
+      const historicoCarregado = await get().loadSessions();
+      if (!historicoCarregado) {
         set({
-          sessions,
-        });
-        return true;
-      } catch {
-        set({
-          saveError:
-            "Não foi possível salvar a sessão. Seu resultado continua nesta tela. Tente novamente.",
+          saveError: "Aguarde o histórico carregar e tente salvar novamente.",
         });
         return false;
-      } finally {
-        set({
-          isSaving: false,
-        });
       }
-    },
-  };
-});
+      if (get().sessions.some((salva) => salva.id === sessao.id)) return true;
+      const sessoes = [sessao, ...get().sessions].sort(
+        (a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt),
+      );
+      await writeSessions(sessoes);
+      // Resultado e histórico só recebem o registro após a gravação.
+      set({
+        sessions: sessoes,
+      });
+      return true;
+    } catch {
+      set({
+        saveError:
+          "Não foi possível salvar a sessão. Seu resultado continua nesta tela. Tente novamente.",
+      });
+      return false;
+    } finally {
+      set({
+        isSaving: false,
+      });
+    }
+  },
+}));

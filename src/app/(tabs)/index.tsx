@@ -10,56 +10,56 @@ import { ActivityCard } from "../../components/ActivityCard";
 import { IconButton } from "../../components/IconButton";
 import { LandscapeHeader } from "../../components/LandscapeHeader";
 import { StatRow } from "../../components/StatRow";
-import { colors, fonts } from "../../constants/theme";
+import { cores, fontes } from "../../constants/theme";
 import { useSessionStore } from "../../stores/useSessionStore";
 import { useZenStore } from "../../stores/useZenStore";
 import { sessionStats } from "../../utils/sessionStats";
 
 export default function HomeScreen() {
-  const profile = useZenStore((state) => state.profile);
-  const sessions = useSessionStore((state) => state.sessions);
-  const loadStatus = useSessionStore((state) => state.loadStatus);
-  const insets = useSafeAreaInsets();
-  const stats = sessionStats(sessions);
-  const now = new Date();
-  const greeting =
-    now.getHours() < 12
+  const perfil = useZenStore((estado) => estado.profile);
+  const sessoes = useSessionStore((estado) => estado.sessions);
+  const estadoCarregamento = useSessionStore((estado) => estado.loadStatus);
+  const margensSeguras = useSafeAreaInsets();
+  const estatisticas = sessionStats(sessoes);
+  const agora = new Date();
+  const saudacao =
+    agora.getHours() < 12
       ? "Bom dia"
-      : now.getHours() < 18
+      : agora.getHours() < 18
         ? "Boa tarde"
         : "Boa noite";
-  const formattedDate = now.toLocaleDateString("pt-BR", {
+  const dataFormatada = agora.toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "numeric",
     month: "short",
   });
-  const date = formattedDate[0].toUpperCase() + formattedDate.slice(1);
-  const duration = Number(profile?.duration ?? "60");
+  const data = dataFormatada[0].toUpperCase() + dataFormatada.slice(1);
+  const duracao = Number(perfil?.duration ?? "60");
 
   return (
     <SafeAreaView
       edges={["left", "right"]}
-      style={styles.screen}
+      style={estilos.tela}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={estilos.conteudoRolagem}
       >
         <LandscapeHeader>
           <View
             style={[
-              styles.greeting,
+              estilos.saudacao,
               {
-                paddingTop: Math.max(insets.top + 20, 54),
+                paddingTop: Math.max(margensSeguras.top + 20, 54),
               },
             ]}
           >
-            <View style={styles.greetingCopy}>
-              <Text style={styles.date}>{date}</Text>
-              <Text style={styles.title}>{greeting}</Text>
-              {profile && (
-                <Text style={styles.name}>
-                  {profile.name.split(" ")[0]}, esse momento é seu.
+            <View style={estilos.textosSaudacao}>
+              <Text style={estilos.data}>{data}</Text>
+              <Text style={estilos.titulo}>{saudacao}</Text>
+              {perfil && (
+                <Text style={estilos.nome}>
+                  {perfil.name.split(" ")[0]}, esse momento é seu.
                 </Text>
               )}
             </View>
@@ -70,44 +70,44 @@ export default function HomeScreen() {
             />
           </View>
         </LandscapeHeader>
-        <View style={styles.content}>
+        <View style={estilos.conteudo}>
           <StatRow
             items={[
               {
-                value: loadStatus === "ready" ? stats.points : "—",
+                value: estadoCarregamento === "ready" ? estatisticas.points : "—",
                 label: "pontos",
               },
               {
-                value: loadStatus === "ready" ? stats.count : "—",
+                value: estadoCarregamento === "ready" ? estatisticas.count : "—",
                 label: "sessões",
               },
               {
-                value: loadStatus === "ready" ? stats.minutes : "—",
+                value: estadoCarregamento === "ready" ? estatisticas.minutes : "—",
                 label: "minutos",
               },
             ]}
           />
-          <Text style={styles.sectionTitle}>Para agora</Text>
+          <Text style={estilos.tituloSecao}>Para agora</Text>
           <ActivityCard
-            duration={duration}
+            duration={duracao}
             onPress={() =>
               router.push({
                 pathname: "/sessao/[atividade]",
                 params: {
                   atividade: "equilibrio-zen",
-                  duracao: String(duration),
+                  duracao: String(duracao),
                 },
               })
             }
           />
-          <View style={styles.shortcuts}>
+          <View style={estilos.atalhos}>
             <Pressable
               accessibilityRole="button"
               onPress={() => router.navigate("/(tabs)/historico")}
-              style={({ pressed }) => [
-                styles.shortcut,
-                styles.blue,
-                pressed && styles.pressed,
+              style={({ pressed: pressionado }) => [
+                estilos.atalho,
+                estilos.azul,
+                pressionado && estilos.pressionado,
               ]}
             >
               <Ionicons
@@ -117,16 +117,16 @@ export default function HomeScreen() {
                 accessible={false}
                 aria-hidden
               />
-              <Text style={styles.shortcutTitle}>Seu histórico</Text>
-              <Text style={styles.shortcutDescription}>Cada sessão conta</Text>
+              <Text style={estilos.tituloAtalho}>Seu histórico</Text>
+              <Text style={estilos.descricaoAtalho}>Cada sessão conta</Text>
             </Pressable>
             <Pressable
               accessibilityRole="button"
               onPress={() => router.navigate("/(tabs)/perfil")}
-              style={({ pressed }) => [
-                styles.shortcut,
-                styles.pink,
-                pressed && styles.pressed,
+              style={({ pressed: pressionado }) => [
+                estilos.atalho,
+                estilos.rosa,
+                pressionado && estilos.pressionado,
               ]}
             >
               <Ionicons
@@ -136,8 +136,8 @@ export default function HomeScreen() {
                 accessible={false}
                 aria-hidden
               />
-              <Text style={styles.shortcutTitle}>Seu perfil</Text>
-              <Text style={styles.shortcutDescription}>No seu ritmo</Text>
+              <Text style={estilos.tituloAtalho}>Seu perfil</Text>
+              <Text style={estilos.descricaoAtalho}>No seu ritmo</Text>
             </Pressable>
           </View>
         </View>
@@ -146,15 +146,15 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
+const estilos = StyleSheet.create({
+  tela: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: cores.fundo,
   },
-  scroll: {
+  conteudoRolagem: {
     paddingBottom: 28,
   },
-  greeting: {
+  saudacao: {
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "flex-start",
@@ -163,45 +163,45 @@ const styles = StyleSheet.create({
     maxWidth: 600,
     alignSelf: "center",
   },
-  greetingCopy: {
+  textosSaudacao: {
     flex: 1,
     gap: 3,
   },
-  date: {
+  data: {
     color: "#D6CDEF",
-    fontFamily: fonts.medium,
+    fontFamily: fontes.seminegrito,
     fontSize: 15,
   },
-  title: {
-    color: colors.text,
-    fontFamily: fonts.heading,
+  titulo: {
+    color: cores.texto,
+    fontFamily: fontes.titulo,
     fontSize: 36,
     lineHeight: 46,
   },
-  name: {
+  nome: {
     color: "#D6CDEF",
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     fontSize: 14,
     marginTop: 5,
   },
-  content: {
+  conteudo: {
     paddingHorizontal: 20,
     gap: 20,
     width: "100%",
     maxWidth: 600,
     alignSelf: "center",
   },
-  sectionTitle: {
-    color: colors.text,
-    fontFamily: fonts.heading,
+  tituloSecao: {
+    color: cores.texto,
+    fontFamily: fontes.titulo,
     fontSize: 23,
     marginTop: 6,
   },
-  shortcuts: {
+  atalhos: {
     flexDirection: "row",
     gap: 12,
   },
-  shortcut: {
+  atalho: {
     flex: 1,
     minHeight: 116,
     borderWidth: 1,
@@ -209,26 +209,26 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 7,
   },
-  blue: {
-    backgroundColor: colors.blueSurface,
+  azul: {
+    backgroundColor: cores.superficieAzul,
     borderColor: "#394372",
   },
-  pink: {
-    backgroundColor: colors.peachSurface,
+  rosa: {
+    backgroundColor: cores.superficiePessego,
     borderColor: "#60415F",
   },
-  shortcutTitle: {
-    color: colors.text,
-    fontFamily: fonts.bold,
+  tituloAtalho: {
+    color: cores.texto,
+    fontFamily: fontes.negrito,
     fontSize: 17,
     marginTop: 5,
   },
-  shortcutDescription: {
+  descricaoAtalho: {
     color: "#C3BED9",
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     fontSize: 12,
   },
-  pressed: {
+  pressionado: {
     opacity: 0.75,
   },
 });

@@ -1,22 +1,26 @@
 import { motionSettings } from "../constants/motion";
 import type { StabilityReading, Vector3 } from "../types/session";
 
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value));
+function limitar(valor: number, minimo: number, maximo: number) {
+  return Math.max(minimo, Math.min(maximo, valor));
 }
 
 export function calculateStability(
-  acceleration: Vector3,
-  rotation: Vector3,
-  displayAcceleration: Vector3 = acceleration,
+  aceleracao: Vector3,
+  rotacao: Vector3,
+  aceleracaoVisual: Vector3 = aceleracao,
 ): StabilityReading {
-  const magnitude = Math.hypot(acceleration.x, acceleration.y, acceleration.z);
-  const speed = Math.hypot(rotation.x, rotation.y, rotation.z);
+  const intensidadeAceleracao = Math.hypot(
+    aceleracao.x,
+    aceleracao.y,
+    aceleracao.z,
+  );
+  const velocidadeRotacao = Math.hypot(rotacao.x, rotacao.y, rotacao.z);
 
   if (
-    !Number.isFinite(magnitude) ||
-    !Number.isFinite(speed) ||
-    magnitude < 0.1
+    !Number.isFinite(intensidadeAceleracao) ||
+    !Number.isFinite(velocidadeRotacao) ||
+    intensidadeAceleracao < 0.1
   ) {
     return {
       stability: 0,
@@ -27,53 +31,53 @@ export function calculateStability(
   }
 
   // Deitado: X e Y próximos de zero; Z recebe a gravidade (aproximadamente 1 g).
-  const tiltDegrees =
+  const inclinacaoGraus =
     (Math.atan2(
-      Math.hypot(acceleration.x, acceleration.y),
-      Math.abs(acceleration.z),
+      Math.hypot(aceleracao.x, aceleracao.y),
+      Math.abs(aceleracao.z),
     ) *
       180) /
     Math.PI;
-  const accelerationChange = Math.abs(magnitude - 1);
+  const variacaoAceleracao = Math.abs(intensidadeAceleracao - 1);
 
   // A pontuação usa as leituras reais; a suavização afeta apenas a esfera.
-  const tiltScore = clamp(
-    1 - tiltDegrees / motionSettings.maxTiltDegrees,
+  const fatorInclinacao = limitar(
+    1 - inclinacaoGraus / motionSettings.maxTiltDegrees,
     0,
     1,
   );
-  const rotationScore = clamp(
-    1 - speed / motionSettings.maxRotationRadPerSecond,
+  const fatorRotacao = limitar(
+    1 - velocidadeRotacao / motionSettings.maxRotationRadPerSecond,
     0,
     1,
   );
-  const accelerationScore = clamp(
-    1 - accelerationChange / motionSettings.maxAccelerationChangeG,
+  const fatorAceleracao = limitar(
+    1 - variacaoAceleracao / motionSettings.maxAccelerationChangeG,
     0,
     1,
   );
-  const displayMagnitude = Math.hypot(
-    displayAcceleration.x,
-    displayAcceleration.y,
-    displayAcceleration.z,
+  const intensidadeVisual = Math.hypot(
+    aceleracaoVisual.x,
+    aceleracaoVisual.y,
+    aceleracaoVisual.z,
   );
-  const validDisplay =
-    Number.isFinite(displayMagnitude) && displayMagnitude >= 0.1;
-  const offsetX = validDisplay
-    ? (displayAcceleration.x / displayMagnitude) * 2
+  const posicaoValida =
+    Number.isFinite(intensidadeVisual) && intensidadeVisual >= 0.1;
+  const offsetX = posicaoValida
+    ? (aceleracaoVisual.x / intensidadeVisual) * 2
     : 0;
-  const offsetY = validDisplay
-    ? (-displayAcceleration.y / displayMagnitude) * 2
+  const offsetY = posicaoValida
+    ? (-aceleracaoVisual.y / intensidadeVisual) * 2
     : 0;
-  const offsetScale = Math.max(1, Math.hypot(offsetX, offsetY));
+  const escalaDeslocamento = Math.max(1, Math.hypot(offsetX, offsetY));
 
   return {
-    stability: Math.round(100 * tiltScore * rotationScore * accelerationScore),
+    stability: Math.round(100 * fatorInclinacao * fatorRotacao * fatorAceleracao),
     inRange:
-      tiltDegrees <= motionSettings.targetTiltDegrees &&
-      speed <= motionSettings.targetRotationRadPerSecond &&
-      accelerationChange <= motionSettings.targetAccelerationChangeG,
-    offsetX: offsetX / offsetScale,
-    offsetY: offsetY / offsetScale,
+      inclinacaoGraus <= motionSettings.targetTiltDegrees &&
+      velocidadeRotacao <= motionSettings.targetRotationRadPerSecond &&
+      variacaoAceleracao <= motionSettings.targetAccelerationChangeG,
+    offsetX: offsetX / escalaDeslocamento,
+    offsetY: offsetY / escalaDeslocamento,
   };
 }

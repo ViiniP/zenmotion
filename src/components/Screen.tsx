@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { SafeAreaView, type Edge } from "react-native-safe-area-context";
 
-import { colors } from "../constants/theme";
+import { cores } from "../constants/theme";
 
 type ScreenProps = PropsWithChildren<{
   contentStyle?: StyleProp<ViewStyle>;
@@ -22,12 +22,12 @@ export function Screen({
   return (
     <SafeAreaView
       edges={edges}
-      style={styles.screen}
+      style={estilos.tela}
     >
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, contentStyle]}
+        contentContainerStyle={[estilos.conteudo, contentStyle]}
       >
         {children}
       </ScrollView>
@@ -35,7 +35,7 @@ export function Screen({
   );
 }
 
-export const screenContent = {
+export const conteudoTela = {
   width: "100%",
   maxWidth: 600,
   alignSelf: "center",
@@ -44,13 +44,13 @@ export const screenContent = {
   paddingBottom: 32,
 } as const;
 
-const styles = StyleSheet.create({
-  screen: {
+const estilos = StyleSheet.create({
+  tela: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: cores.fundo,
   },
-  content: {
-    ...screenContent,
+  conteudo: {
+    ...conteudoTela,
     gap: 24,
   },
 });

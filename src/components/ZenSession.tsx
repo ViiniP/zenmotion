@@ -11,13 +11,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors, fonts } from "../constants/theme";
+import { cores, fontes } from "../constants/theme";
 import { useZenSession } from "../hooks/useZenSession";
 import { useSessionStore } from "../stores/useSessionStore";
 import { averageStability } from "../utils/sessionProgress";
 import { AppButton } from "./AppButton";
 import { IconButton } from "./IconButton";
-import { screenContent } from "./Screen";
+import { conteudoTela } from "./Screen";
 import { StatRow } from "./StatRow";
 
 type ZenSessionProps = {
@@ -27,104 +27,104 @@ type ZenSessionProps = {
 };
 
 export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
-  const session = useZenSession(duration);
-  const saveSession = useSessionStore((state) => state.saveSession);
-  const isSaving = useSessionStore((state) => state.isSaving);
-  const saveError = useSessionStore((state) => state.saveError);
-  const [hasTriedSaving, setHasTriedSaving] = useState(false);
-  const mounted = useRef(true);
+  const sessao = useZenSession(duration);
+  const salvarSessao = useSessionStore((estado) => estado.saveSession);
+  const salvando = useSessionStore((estado) => estado.isSaving);
+  const erroSalvamento = useSessionStore((estado) => estado.saveError);
+  const [tentouSalvar, definirTentouSalvar] = useState(false);
+  const componenteMontado = useRef(true);
 
   useEffect(() => {
-    mounted.current = true;
+    componenteMontado.current = true;
     return () => {
-      mounted.current = false;
+      componenteMontado.current = false;
     };
   }, []);
 
-  async function saveResult() {
-    if (!session.result) return;
-    setHasTriedSaving(true);
-    const saved = await saveSession(session.result);
+  async function salvarResultado() {
+    if (!sessao.result) return;
+    definirTentouSalvar(true);
+    const salvo = await salvarSessao(sessao.result);
     // Voltar pelo botão do sistema durante a gravação não deve abrir outra tela.
-    if (saved && mounted.current) onSaved(session.result.id);
+    if (salvo && componenteMontado.current) onSaved(sessao.result.id);
   }
-  const remaining = Math.max(
+  const segundosRestantes = Math.max(
     0,
-    Math.ceil(duration - session.progress.elapsedMs / 1000),
+    Math.ceil(duration - sessao.progress.elapsedMs / 1000),
   );
-  const clock = `${Math.floor(remaining / 60)
+  const cronometro = `${Math.floor(segundosRestantes / 60)
     .toString()
-    .padStart(2, "0")}:${(remaining % 60).toString().padStart(2, "0")}`;
-  const average = averageStability(session.progress);
-  const finished = session.status === "finished";
+    .padStart(2, "0")}:${(segundosRestantes % 60).toString().padStart(2, "0")}`;
+  const media = averageStability(sessao.progress);
+  const finalizada = sessao.status === "finished";
 
-  let instruction =
+  let instrucao =
     "Segure o celular deitado, com a tela para cima, e mantenha a esfera no centro.";
-  if (session.status === "checking")
-    instruction = "Verificando permissão e disponibilidade dos sensores...";
-  if (session.status === "running") {
-    instruction = !session.reading
+  if (sessao.status === "checking")
+    instrucao = "Verificando permissão e disponibilidade dos sensores...";
+  if (sessao.status === "running") {
+    instrucao = !sessao.reading
       ? "Aguardando leituras dos sensores..."
-      : session.reading.inRange
+      : sessao.reading.inRange
         ? "Na faixa! Mantenha a posição."
         : "Ajuste a inclinação e mova o aparelho devagar.";
   }
-  if (session.status === "paused")
-    instruction = "Sessão pausada. Retome quando estiver pronto.";
-  if (finished) instruction = "Sessão concluída!";
+  if (sessao.status === "paused")
+    instrucao = "Sessão pausada. Retome quando estiver pronto.";
+  if (finalizada) instrucao = "Sessão concluída!";
 
   return (
     <LinearGradient
       colors={["#191630", "#332766", "#78508A"]}
-      style={styles.screen}
+      style={estilos.tela}
     >
       <Image
         source={require("../../assets/images/zen-landscape.png")}
-        style={styles.landscape}
+        style={estilos.paisagem}
         accessible={false}
       />
       <SafeAreaView
-        style={styles.screen}
+        style={estilos.tela}
         edges={["top", "left", "right", "bottom"]}
       >
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={estilos.conteiner}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
+          <View style={estilos.cabecalho}>
             <IconButton
               name="close-outline"
-              label={finished ? "Sair sem salvar" : "Voltar às atividades"}
+              label={finalizada ? "Sair sem salvar" : "Voltar às atividades"}
               onPress={onExit}
-              disabled={isSaving}
+              disabled={salvando}
             />
-            <Text style={styles.title}>Equilíbrio Zen</Text>
-            <View style={styles.headerSpace} />
+            <Text style={estilos.titulo}>Equilíbrio Zen</Text>
+            <View style={estilos.espacoCabecalho} />
           </View>
           <Text
             accessibilityLiveRegion="polite"
-            style={styles.description}
+            style={estilos.descricao}
           >
-            {instruction}
+            {instrucao}
           </Text>
 
           <View
             accessible={false}
-            style={styles.board}
+            style={estilos.areaEquilibrio}
           >
-            <View style={styles.innerRing} />
-            <View style={styles.target} />
+            <View style={estilos.anelInterno} />
+            <View style={estilos.alvo} />
             <View
               style={[
-                styles.sphere,
-                session.reading && !session.reading.inRange && styles.outside,
+                estilos.esfera,
+                sessao.reading && !sessao.reading.inRange && estilos.foraDaFaixa,
                 {
                   transform: [
                     {
-                      translateX: (session.reading?.offsetX ?? 0) * 90 - 14,
+                      translateX: (sessao.reading?.offsetX ?? 0) * 90 - 14,
                     },
                     {
-                      translateY: (session.reading?.offsetY ?? 0) * 90 - 14,
+                      translateY: (sessao.reading?.offsetY ?? 0) * 90 - 14,
                     },
                   ],
                 },
@@ -132,103 +132,103 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
             >
               <Image
                 source={require("../../assets/images/zen-orb.png")}
-                style={styles.sphereImage}
+                style={estilos.imagemEsfera}
                 accessible={false}
               />
             </View>
           </View>
 
           <Text
-            accessibilityLabel={`Tempo restante: ${remaining} segundos`}
-            style={styles.clock}
+            accessibilityLabel={`Tempo restante: ${segundosRestantes} segundos`}
+            style={estilos.cronometro}
           >
-            {clock}
+            {cronometro}
           </Text>
-          <Text style={styles.duration}>de {duration} segundos</Text>
+          <Text style={estilos.duracao}>de {duration} segundos</Text>
 
           <StatRow
             items={[
               {
-                value: session.reading ? `${session.reading.stability}%` : "—",
+                value: sessao.reading ? `${sessao.reading.stability}%` : "—",
                 label: "estabilidade agora",
               },
               {
-                value: `${(session.progress.stableMs / 1000).toFixed(1).replace(".", ",")} s`,
+                value: `${(sessao.progress.stableMs / 1000).toFixed(1).replace(".", ",")} s`,
                 label: "na faixa",
               },
             ]}
           />
-          <Text style={styles.average}>
-            {finished
-              ? `Pontuação: ${average} de 100`
-              : `Média: ${session.progress.elapsedMs > 0 ? `${average}%` : "—"}`}
+          <Text style={estilos.media}>
+            {finalizada
+              ? `Pontuação: ${media} de 100`
+              : `Média: ${sessao.progress.elapsedMs > 0 ? `${media}%` : "—"}`}
           </Text>
 
-          {session.message && (
+          {sessao.message && (
             <Text
               accessibilityRole="alert"
-              style={styles.error}
+              style={estilos.erro}
             >
-              {session.message}
+              {sessao.message}
             </Text>
           )}
-          {finished && hasTriedSaving && saveError && (
+          {finalizada && tentouSalvar && erroSalvamento && (
             <Text
               accessibilityRole="alert"
-              style={styles.error}
+              style={estilos.erro}
             >
-              {saveError}
+              {erroSalvamento}
             </Text>
           )}
 
-          {session.status === "running" ? (
+          {sessao.status === "running" ? (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Pausar"
-              onPress={session.pause}
-              style={({ pressed }) => [styles.pause, pressed && styles.pressed]}
+              onPress={sessao.pause}
+              style={({ pressed: pressionado }) => [estilos.pausar, pressionado && estilos.pressionado]}
             >
               <Ionicons
                 name="pause"
                 size={30}
-                color={colors.background}
+                color={cores.fundo}
                 accessible={false}
                 aria-hidden
               />
             </Pressable>
-          ) : finished ? (
+          ) : finalizada ? (
             <AppButton
-              title={isSaving ? "Salvando..." : "Salvar e ver resultado"}
-              onPress={saveResult}
-              disabled={isSaving}
+              title={salvando ? "Salvando..." : "Salvar e ver resultado"}
+              onPress={salvarResultado}
+              disabled={salvando}
             />
           ) : (
             <AppButton
               title={
-                session.status === "checking"
+                sessao.status === "checking"
                   ? "Verificando..."
-                  : session.message
+                  : sessao.message
                     ? "Tentar novamente"
-                    : session.status === "paused"
+                    : sessao.status === "paused"
                       ? "Retomar"
                       : "Começar"
               }
-              onPress={session.start}
-              disabled={session.status === "checking"}
+              onPress={sessao.start}
+              disabled={sessao.status === "checking"}
             />
           )}
-          {session.status === "paused" && (
+          {sessao.status === "paused" && (
             <AppButton
               title="Recomeçar"
               variant="secondary"
-              onPress={session.reset}
+              onPress={sessao.reset}
             />
           )}
-          {session.status !== "running" && (
+          {sessao.status !== "running" && (
             <AppButton
-              title={finished ? "Sair sem salvar" : "Voltar às atividades"}
+              title={finalizada ? "Sair sem salvar" : "Voltar às atividades"}
               onPress={onExit}
-              disabled={isSaving}
+              disabled={salvando}
               variant="text"
             />
           )}
@@ -238,54 +238,54 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
+const estilos = StyleSheet.create({
+  tela: {
     flex: 1,
   },
-  container: {
-    ...screenContent,
+  conteiner: {
+    ...conteudoTela,
     paddingTop: 12,
     gap: 12,
   },
-  header: {
+  cabecalho: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     marginBottom: 4,
   },
-  headerSpace: {
+  espacoCabecalho: {
     width: 48,
   },
-  title: {
+  titulo: {
     flex: 1,
-    color: colors.text,
+    color: cores.texto,
     fontSize: 19,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
     textAlign: "center",
   },
-  description: {
+  descricao: {
     color: "#D7CFE9",
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     fontSize: 15,
     lineHeight: 22,
     textAlign: "center",
     minHeight: 44,
   },
-  duration: {
+  duracao: {
     color: "#C8BDDE",
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     fontSize: 15,
     textAlign: "center",
     marginTop: -8,
   },
-  landscape: {
+  paisagem: {
     position: "absolute",
     bottom: 0,
     width: "100%",
     height: 220,
     opacity: 0.24,
   },
-  innerRing: {
+  anelInterno: {
     width: "72%",
     aspectRatio: 1,
     position: "absolute",
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     borderColor: "#FFFFFF16",
     borderRadius: 999,
   },
-  board: {
+  areaEquilibrio: {
     width: "100%",
     maxWidth: 220,
     aspectRatio: 1,
@@ -305,15 +305,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  target: {
+  alvo: {
     width: 80,
     height: 80,
     borderRadius: 40,
     borderWidth: 2,
-    borderColor: colors.primary,
+    borderColor: cores.primaria,
     borderStyle: "dashed",
   },
-  sphere: {
+  esfera: {
     position: "absolute",
     left: "50%",
     top: "50%",
@@ -322,45 +322,45 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: "transparent",
   },
-  sphereImage: {
+  imagemEsfera: {
     width: 36,
     height: 36,
     left: -4,
     top: -4,
   },
-  outside: {
+  foraDaFaixa: {
     backgroundColor: "#FF8C9666",
   },
-  clock: {
-    color: colors.text,
+  cronometro: {
+    color: cores.texto,
     fontSize: 56,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     textAlign: "center",
   },
-  average: {
+  media: {
     color: "#E2D7EF",
-    fontFamily: fonts.medium,
+    fontFamily: fontes.seminegrito,
     fontSize: 14,
     textAlign: "center",
   },
-  error: {
+  erro: {
     color: "#FFBBC2",
-    fontFamily: fonts.medium,
+    fontFamily: fontes.seminegrito,
     fontSize: 15,
     lineHeight: 22,
     textAlign: "center",
   },
-  pause: {
+  pausar: {
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: colors.primary,
+    backgroundColor: cores.primaria,
     alignSelf: "center",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 4,
   },
-  pressed: {
+  pressionado: {
     opacity: 0.75,
   },
 });

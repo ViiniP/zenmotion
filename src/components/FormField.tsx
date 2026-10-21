@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import type { TextInputProps } from "react-native";
 
-import { colors, fonts } from "../constants/theme";
+import { cores, fontes } from "../constants/theme";
 
 type FormFieldProps = TextInputProps & {
   label: string;
@@ -10,19 +10,19 @@ type FormFieldProps = TextInputProps & {
 
 export function FormField({ label, error, ...inputProps }: FormFieldProps) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+    <View style={estilos.conteiner}>
+      <Text style={estilos.rotulo}>{label}</Text>
       <TextInput
         {...inputProps}
         accessibilityLabel={label}
-        placeholderTextColor={colors.textSecondary}
-        selectionColor={colors.primary}
-        style={[styles.input, error && styles.inputError]}
+        placeholderTextColor={cores.textoSecundario}
+        selectionColor={cores.primaria}
+        style={[estilos.campo, error && estilos.campoComErro]}
       />
       {error && (
         <Text
           accessibilityRole="alert"
-          style={styles.error}
+          style={estilos.erro}
         >
           {error}
         </Text>
@@ -31,34 +31,34 @@ export function FormField({ label, error, ...inputProps }: FormFieldProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const estilos = StyleSheet.create({
+  conteiner: {
     gap: 8,
   },
-  label: {
-    color: colors.textSecondary,
+  rotulo: {
+    color: cores.textoSecundario,
     fontSize: 14,
-    fontFamily: fonts.bold,
+    fontFamily: fontes.negrito,
   },
-  input: {
+  campo: {
     minHeight: 52,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: cores.borda,
     borderRadius: 18,
-    backgroundColor: colors.surface,
-    color: colors.text,
+    backgroundColor: cores.superficie,
+    color: cores.texto,
     fontSize: 16,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  inputError: {
-    borderColor: colors.error,
+  campoComErro: {
+    borderColor: cores.erro,
     backgroundColor: "#302034",
   },
-  error: {
-    color: colors.error,
-    fontFamily: fonts.regular,
+  erro: {
+    color: cores.erro,
+    fontFamily: fontes.regular,
     fontSize: 13,
     lineHeight: 20,
   },

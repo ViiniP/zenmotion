@@ -13,88 +13,87 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../components/AppButton";
 import { HistoryStatus } from "../../components/HistoryStatus";
 import { SessionSync } from "../../components/SessionSync";
-import { screenContent } from "../../components/Screen";
+import { conteudoTela } from "../../components/Screen";
 import { StatRow } from "../../components/StatRow";
-import { colors, fonts } from "../../constants/theme";
+import { cores, fontes } from "../../constants/theme";
 import { useSessionStore } from "../../stores/useSessionStore";
 import { formatSessionDate, formatStableTime } from "../../utils/sessionRecord";
 import { sessionStats } from "../../utils/sessionStats";
 
 export default function HistoryScreen() {
-  const sessions = useSessionStore((state) => state.sessions);
-  const loadStatus = useSessionStore((state) => state.loadStatus);
-  const stats = sessionStats(sessions);
+  const sessoes = useSessionStore((estado) => estado.sessions);
+  const estadoCarregamento = useSessionStore((estado) => estado.loadStatus);
+  const estatisticas = sessionStats(sessoes);
 
-  if (loadStatus !== "ready") return <HistoryStatus />;
+  if (estadoCarregamento !== "ready") return <HistoryStatus />;
 
   return (
     <SafeAreaView
       edges={["top", "left", "right"]}
-      style={styles.screen}
+      style={estilos.tela}
     >
       <FlatList
-        data={sessions}
-        keyExtractor={(session) => session.id}
-        contentContainerStyle={styles.container}
+        data={sessoes}
+        keyExtractor={(sessao) => sessao.id}
+        contentContainerStyle={estilos.conteiner}
         ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.title}>Histórico</Text>
-            <Text style={styles.description}>
-              Seu progresso, uma pausa de cada vez.
-            </Text>
-            {sessions.length > 0 && (
+          <View style={estilos.cabecalho}>
+            <Text style={estilos.titulo}>Histórico</Text>
+            <Text style={estilos.descricao}> Seu progresso, uma pausa de cada vez.</Text>
+            {sessoes.length > 0 && (
               <>
-                <View style={styles.highlights}>
+                <View style={estilos.destaques}>
                   <LinearGradient
                     colors={["#47357E", "#302663"]}
-                    style={styles.highlight}
+                    style={estilos.destaque}
                   >
-                    <Text style={styles.highlightLabel}>
+                    <Text style={estilos.rotuloDestaque}>
                       Estabilidade média
                     </Text>
-                    <Text style={styles.highlightValue}>{stats.average}%</Text>
+                    <Text style={estilos.valorDestaque}>{estatisticas.average}%</Text>
                   </LinearGradient>
                   <LinearGradient
                     colors={["#68448D", "#3D2A67"]}
-                    style={styles.highlight}
+                    style={estilos.destaque}
                   >
-                    <Text style={styles.highlightLabel}>Melhor pontuação</Text>
-                    <Text style={styles.highlightValue}>{stats.best}</Text>
+                    <Text style={estilos.rotuloDestaque}>Melhor pontuação</Text>
+                    <Text style={estilos.valorDestaque}>{estatisticas.best}</Text>
                   </LinearGradient>
                 </View>
                 <StatRow
                   items={[
                     {
-                      value: stats.count,
+                      value: estatisticas.count,
                       label: "sessões",
                     },
                     {
-                      value: stats.minutes,
+                      value: estatisticas.minutes,
                       label: "minutos",
                     },
                     {
-                      value: stats.points,
+                      value: estatisticas.points,
                       label: "pontos",
                     },
                   ]}
                 />
               </>
             )}
-            <SessionSync sessions={sessions} />
-            {sessions.length > 0 && (
-              <Text style={styles.sectionLabel}>SESSÕES RECENTES</Text>
+            {/* Zustand */}
+            <SessionSync sessions={sessoes} />
+            {sessoes.length > 0 && (
+              <Text style={estilos.rotuloSecao}>SESSÕES RECENTES</Text>
             )}
           </View>
         }
         ListEmptyComponent={
-          <View style={styles.empty}>
+          <View style={estilos.estadoVazio}>
             <Image
               source={require("../../../assets/images/zen-orb.png")}
-              style={styles.emptyOrb}
+              style={estilos.esferaEstadoVazio}
               accessible={false}
             />
-            <Text style={styles.emptyTitle}>Seu ritmo começa aqui</Text>
-            <Text style={styles.emptyDescription}>
+            <Text style={estilos.tituloEstadoVazio}>Seu ritmo começa aqui</Text>
+            <Text style={estilos.descricaoEstadoVazio}>
               Conclua sua primeira sessão para acompanhar cada conquista.
             </Text>
             <AppButton
@@ -115,24 +114,24 @@ export default function HistoryScreen() {
                 },
               })
             }
-            style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+            style={({ pressed: pressionado }) => [estilos.cartao, pressionado && estilos.pressionado]}
           >
             <Image
               source={require("../../../assets/images/zen-orb.png")}
-              style={styles.orb}
+              style={estilos.esfera}
               accessible={false}
             />
-            <View style={styles.cardCopy}>
-              <Text style={styles.cardTitle}>Equilíbrio Zen</Text>
-              <Text style={styles.date}>
+            <View style={estilos.textosCartao}>
+              <Text style={estilos.tituloCartao}>Equilíbrio Zen</Text>
+              <Text style={estilos.data}>
                 {formatSessionDate(item.completedAt)}
               </Text>
-              <Text style={styles.details}>
+              <Text style={estilos.detalhes}>
                 {item.durationSeconds} s · {formatStableTime(item.stableMs)} na
                 faixa
               </Text>
             </View>
-            <Text style={styles.points}>{item.averageStability}</Text>
+            <Text style={estilos.pontos}>{item.averageStability}</Text>
           </Pressable>
         )}
       />
@@ -140,121 +139,121 @@ export default function HistoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
+const estilos = StyleSheet.create({
+  tela: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: cores.fundo,
   },
-  container: {
-    ...screenContent,
+  conteiner: {
+    ...conteudoTela,
     gap: 12,
   },
-  title: {
-    color: colors.text,
+  titulo: {
+    color: cores.texto,
     fontSize: 34,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
   },
-  description: {
-    color: colors.textSecondary,
+  descricao: {
+    color: cores.textoSecundario,
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  header: {
+  cabecalho: {
     gap: 16,
   },
-  card: {
-    backgroundColor: colors.surface,
+  cartao: {
+    backgroundColor: cores.superficie,
     borderRadius: 22,
     padding: 18,
     gap: 12,
     flexDirection: "row",
     alignItems: "center",
   },
-  pressed: {
+  pressionado: {
     opacity: 0.75,
   },
-  cardTitle: {
-    color: colors.text,
+  tituloCartao: {
+    color: cores.texto,
     fontSize: 16,
-    fontFamily: fonts.bold,
+    fontFamily: fontes.negrito,
   },
-  points: {
-    color: colors.text,
+  pontos: {
+    color: cores.texto,
     fontSize: 25,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
   },
-  date: {
-    color: colors.textSecondary,
+  data: {
+    color: cores.textoSecundario,
     fontSize: 12,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  details: {
+  detalhes: {
     color: "#BFB6D4",
     fontSize: 12,
     lineHeight: 18,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  cardCopy: {
+  textosCartao: {
     flex: 1,
     gap: 3,
   },
-  orb: {
+  esfera: {
     width: 40,
     height: 40,
   },
-  highlights: {
+  destaques: {
     flexDirection: "row",
     gap: 12,
     marginTop: 4,
   },
-  highlight: {
+  destaque: {
     flex: 1,
     borderRadius: 24,
     padding: 18,
     gap: 8,
     justifyContent: "space-between",
   },
-  highlightLabel: {
+  rotuloDestaque: {
     fontSize: 14,
     lineHeight: 20,
     color: "#DED3F1",
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  highlightValue: {
-    color: colors.text,
+  valorDestaque: {
+    color: cores.texto,
     fontSize: 34,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
   },
-  sectionLabel: {
-    color: colors.textSecondary,
+  rotuloSecao: {
+    color: cores.textoSecundario,
     fontSize: 12,
     letterSpacing: 1,
-    fontFamily: fonts.bold,
+    fontFamily: fontes.negrito,
     marginTop: 8,
   },
-  empty: {
+  estadoVazio: {
     padding: 24,
     borderRadius: 24,
-    backgroundColor: colors.surface,
+    backgroundColor: cores.superficie,
     gap: 16,
   },
-  emptyOrb: {
+  esferaEstadoVazio: {
     width: 76,
     height: 76,
     alignSelf: "center",
   },
-  emptyTitle: {
-    color: colors.text,
+  tituloEstadoVazio: {
+    color: cores.texto,
     fontSize: 22,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
     textAlign: "center",
   },
-  emptyDescription: {
-    color: colors.textSecondary,
+  descricaoEstadoVazio: {
+    color: cores.textoSecundario,
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     textAlign: "center",
   },
 });

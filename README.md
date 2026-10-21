@@ -4,6 +4,8 @@ Aplicativo de Mobile II com Expo SDK 57, sensores de movimento e histórico loca
 
 Para estudar o código com o grupo, siga o [guia completo de estudo](docs/guia-estudo.md), com responsabilidades por arquivo, fluxos de execução, exemplos, exercícios e roteiro de apresentação.
 
+A validação do perfil fica no formulário. O armazenamento usa o formato gerado pelo próprio aplicativo, com leitura/escrita simples e mensagens de falha. Os cálculos e operações de dados usam nomes locais em português, mantendo os campos já utilizados nos registros salvos.
+
 ## Executar o app e a API local
 
 Depois de instalar as dependências com `npm install`, abra dois terminais na pasta do projeto:

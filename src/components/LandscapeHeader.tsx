@@ -2,18 +2,18 @@ import { LinearGradient } from "expo-linear-gradient";
 import type { PropsWithChildren } from "react";
 import { ImageBackground, StyleSheet } from "react-native";
 
-import { colors } from "../constants/theme";
+import { cores } from "../constants/theme";
 
 export function LandscapeHeader({ children }: PropsWithChildren) {
   return (
     <ImageBackground
       source={require("../../assets/images/zen-landscape.png")}
       resizeMode="cover"
-      style={styles.header}
+      style={estilos.cabecalho}
     >
       <LinearGradient
-        colors={["transparent", colors.background]}
-        style={styles.blend}
+        colors={["transparent", cores.fundo]}
+        style={estilos.degradeRodape}
         pointerEvents="none"
       />
       {children}
@@ -21,12 +21,12 @@ export function LandscapeHeader({ children }: PropsWithChildren) {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
+const estilos = StyleSheet.create({
+  cabecalho: {
     width: "100%",
     height: 300,
   },
-  blend: {
+  degradeRodape: {
     position: "absolute",
     left: 0,
     right: 0,

@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import type { ComponentProps } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
-import { colors } from "../constants/theme";
+import { cores } from "../constants/theme";
 
 type IconButtonProps = {
   name: ComponentProps<typeof Ionicons>["name"];
@@ -27,16 +27,16 @@ export function IconButton({
       }}
       aria-disabled={!!disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        pressed && styles.pressed,
-        disabled && styles.disabled,
+      style={({ pressed: pressionado }) => [
+        estilos.botao,
+        pressionado && estilos.pressionado,
+        disabled && estilos.desabilitado,
       ]}
     >
       <Ionicons
         name={name}
         size={25}
-        color={colors.text}
+        color={cores.texto}
         accessible={false}
         aria-hidden
       />
@@ -44,8 +44,8 @@ export function IconButton({
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
+const estilos = StyleSheet.create({
+  botao: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -53,10 +53,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  pressed: {
+  pressionado: {
     opacity: 0.65,
   },
-  disabled: {
+  desabilitado: {
     opacity: 0.4,
   },
 });

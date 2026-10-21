@@ -14,15 +14,15 @@ A API atual é fornecida pelo JSON Server. O aplicativo usa Axios para fazer as 
 
 ```ts
 export async function getRemoteSessions(): Promise<SessionRecord[]> {
-  const response = await api.get<SessionRecord[]>("/sessions");
-  return response.data;
+  const resposta = await api.get<SessionRecord[]>("/sessions");
+  return resposta.data;
 }
 ```
 
 - `async` permite usar `await` dentro da função.
 - `await` espera a resposta da requisição sem bloquear a interface.
 - `api.get` consulta o endereço base configurado, acrescentando `/sessions`.
-- `response.data` é o corpo da resposta: a lista de sessões.
+- `resposta.data` é o corpo da resposta: a lista de sessões.
 - `SessionRecord[]` descreve essa lista para o TypeScript. Não faz uma validação dos dados em tempo de execução.
 
 ## Enviar: POST
@@ -30,13 +30,13 @@ export async function getRemoteSessions(): Promise<SessionRecord[]> {
 A função `sendSessions` recebe a lista salva no celular:
 
 1. Faz GET para obter a lista atual do servidor.
-2. Começa o contador `sentCount` em zero.
+2. Começa o contador `quantidadeEnviada` em zero.
 3. Percorre as sessões locais com `for...of`.
 4. Usa `some` para perguntar se já existe um registro remoto com o mesmo ID.
 5. Se não existe, faz POST e incrementa o contador.
 6. Retorna quantas sessões foram enviadas nessa tentativa.
 
-`some` retorna `true` quando encontra um item que atende à condição. `!alreadySent` significa “ainda não enviada”. `sentCount++` aumenta o contador em um.
+`some` retorna `true` quando encontra um item que atende à condição. `!jaEnviada` significa “ainda não enviada”. `quantidadeEnviada++` aumenta o contador em um. `sessoesServidor` é a lista obtida no GET e `sessao` é o item local sendo percorrido.
 
 Essa verificação básica evita repetir uma sessão em envios sucessivos do aparelho. A função depende de a API manter o ID enviado. Ela não compara o conteúdo de dois registros com o mesmo ID.
 

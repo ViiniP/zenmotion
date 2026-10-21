@@ -8,33 +8,33 @@ export const INITIAL_PROGRESS: SessionProgress = {
 };
 
 export function advanceProgress(
-  progress: SessionProgress,
-  reading: StabilityReading,
-  deltaMs: number,
-  durationMs: number,
+  progresso: SessionProgress,
+  leitura: StabilityReading,
+  intervaloMs: number,
+  duracaoMs: number,
 ): SessionProgress {
   // Uma lacuna nas leituras não pode gerar tempo ou pontos automaticamente.
   if (
-    !Number.isFinite(deltaMs) ||
-    deltaMs <= 0 ||
-    deltaMs > motionSettings.maxReadingGapMs
+    !Number.isFinite(intervaloMs) ||
+    intervaloMs <= 0 ||
+    intervaloMs > motionSettings.maxReadingGapMs
   ) {
-    return progress;
+    return progresso;
   }
 
-  const interval = Math.max(
+  const intervaloAceito = Math.max(
     0,
-    Math.min(deltaMs, durationMs - progress.elapsedMs),
+    Math.min(intervaloMs, duracaoMs - progresso.elapsedMs),
   );
   return {
-    elapsedMs: progress.elapsedMs + interval,
-    stableMs: progress.stableMs + (reading.inRange ? interval : 0),
-    weightedScore: progress.weightedScore + reading.stability * interval,
+    elapsedMs: progresso.elapsedMs + intervaloAceito,
+    stableMs: progresso.stableMs + (leitura.inRange ? intervaloAceito : 0),
+    weightedScore: progresso.weightedScore + leitura.stability * intervaloAceito,
   };
 }
 
-export function averageStability(progress: SessionProgress) {
-  return progress.elapsedMs > 0
-    ? Math.round(progress.weightedScore / progress.elapsedMs)
+export function averageStability(progresso: SessionProgress) {
+  return progresso.elapsedMs > 0
+    ? Math.round(progresso.weightedScore / progresso.elapsedMs)
     : 0;
 }

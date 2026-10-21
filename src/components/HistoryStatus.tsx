@@ -1,35 +1,35 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-import { colors, fonts } from "../constants/theme";
+import { cores, fontes } from "../constants/theme";
 import { useSessionStore } from "../stores/useSessionStore";
 import { AppButton } from "./AppButton";
 import { Screen } from "./Screen";
 
 export function HistoryStatus() {
-  const loadStatus = useSessionStore((state) => state.loadStatus);
-  const loadError = useSessionStore((state) => state.loadError);
-  const loadSessions = useSessionStore((state) => state.loadSessions);
+  const estadoCarregamento = useSessionStore((estado) => estado.loadStatus);
+  const erroCarregamento = useSessionStore((estado) => estado.loadError);
+  const carregarSessoes = useSessionStore((estado) => estado.loadSessions);
 
   return (
     <Screen>
-      <View style={styles.container}>
-        {loadStatus === "error" ? (
+      <View style={estilos.conteiner}>
+        {estadoCarregamento === "error" ? (
           <>
             <Text
               accessibilityRole="alert"
-              style={styles.error}
+              style={estilos.erro}
             >
-              {loadError}
+              {erroCarregamento}
             </Text>
             <AppButton
               title="Tentar carregar novamente"
-              onPress={loadSessions}
+              onPress={carregarSessoes}
             />
           </>
         ) : (
           <>
-            <ActivityIndicator color={colors.primary} />
-            <Text style={styles.description}>Carregando histórico...</Text>
+            <ActivityIndicator color={cores.primaria} />
+            <Text style={estilos.descricao}>Carregando histórico...</Text>
           </>
         )}
       </View>
@@ -37,20 +37,20 @@ export function HistoryStatus() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const estilos = StyleSheet.create({
+  conteiner: {
     padding: 24,
     gap: 20,
   },
-  description: {
-    color: colors.textSecondary,
+  descricao: {
+    color: cores.textoSecundario,
     fontSize: 18,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  error: {
-    color: colors.error,
+  erro: {
+    color: cores.erro,
     fontSize: 18,
     lineHeight: 26,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
 });

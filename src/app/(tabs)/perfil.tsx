@@ -14,9 +14,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../components/AppButton";
 import { FormField } from "../../components/FormField";
 import { OptionSelector } from "../../components/OptionSelector";
-import { screenContent } from "../../components/Screen";
+import { conteudoTela } from "../../components/Screen";
 import { durationOptions, goalOptions } from "../../constants/profile";
-import { colors, fonts } from "../../constants/theme";
+import { cores, fontes } from "../../constants/theme";
 import { useZenStore } from "../../stores/useZenStore";
 import { useSessionStore } from "../../stores/useSessionStore";
 import { sessionStats } from "../../utils/sessionStats";
@@ -24,18 +24,18 @@ import type { ProfileForm } from "../../types/profile";
 import { validateProfile } from "../../utils/validators";
 
 export default function ProfileScreen() {
-  const savedProfile = useZenStore((state) => state.profile);
-  const saveProfile = useZenStore((state) => state.saveProfile);
-  const isSaving = useZenStore((state) => state.isSaving);
-  const storageError = useZenStore((state) => state.storageError);
-  const sessions = useSessionStore((state) => state.sessions);
-  const points = sessionStats(sessions).points;
+  const perfilSalvo = useZenStore((estado) => estado.profile);
+  const salvarPerfil = useZenStore((estado) => estado.saveProfile);
+  const salvando = useZenStore((estado) => estado.isSaving);
+  const erroArmazenamento = useZenStore((estado) => estado.storageError);
+  const sessoes = useSessionStore((estado) => estado.sessions);
+  const pontos = sessionStats(sessoes).points;
 
   // O formulário é um rascunho local. A store só muda quando ele é salvo.
-  const [form, setForm] = useState<ProfileForm>(() =>
-    savedProfile
+  const [formulario, definirFormulario] = useState<ProfileForm>(() =>
+    perfilSalvo
       ? {
-          ...savedProfile,
+          ...perfilSalvo,
         }
       : {
           name: "",
@@ -44,181 +44,181 @@ export default function ProfileScreen() {
           duration: "60",
         },
   );
-  const [touched, setTouched] = useState({
+  const [camposVisitados, definirCamposVisitados] = useState({
     name: false,
     email: false,
     goal: false,
     duration: false,
   });
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [mostrarConfirmacao, definirMostrarConfirmacao] = useState(false);
 
   // Recalcular as regras a cada alteração mantém o feedback atualizado.
-  const errors = validateProfile(form);
+  const erros = validateProfile(formulario);
 
-  function updateField(field: keyof ProfileForm, value: string) {
-    setForm((current) => ({
-      ...current,
-      [field]: value,
+  function atualizarCampo(campo: keyof ProfileForm, valor: string) {
+    definirFormulario((atual) => ({
+      ...atual,
+      [campo]: valor,
     }));
-    setTouched((current) => ({
-      ...current,
-      [field]: true,
+    definirCamposVisitados((atual) => ({
+      ...atual,
+      [campo]: true,
     }));
-    setShowConfirmation(false);
+    definirMostrarConfirmacao(false);
   }
 
-  function markTouched(field: keyof ProfileForm) {
-    setTouched((current) => ({
-      ...current,
-      [field]: true,
+  function marcarCampoVisitado(campo: keyof ProfileForm) {
+    definirCamposVisitados((atual) => ({
+      ...atual,
+      [campo]: true,
     }));
   }
 
-  async function handleSave() {
-    setTouched({
+  async function confirmarPerfil() {
+    definirCamposVisitados({
       name: true,
       email: true,
       goal: true,
       duration: true,
     });
-    setShowConfirmation(false);
+    definirMostrarConfirmacao(false);
 
     // Dados inválidos não são confirmados.
-    if (Object.keys(errors).length > 0) {
+    if (Object.keys(erros).length > 0) {
       return;
     }
 
-    const profile = {
-      ...form,
-      name: form.name.trim(),
-      email: form.email.trim(),
+    const perfil = {
+      ...formulario,
+      name: formulario.name.trim(),
+      email: formulario.email.trim(),
     };
 
-    const didSave = await saveProfile(profile);
-    if (didSave) {
-      setForm(profile);
-      setShowConfirmation(true);
+    const salvou = await salvarPerfil(perfil);
+    if (salvou) {
+      definirFormulario(perfil);
+      definirMostrarConfirmacao(true);
       Keyboard.dismiss();
     }
   }
 
   return (
     <SafeAreaView
-      style={styles.screen}
+      style={estilos.tela}
       edges={["top", "left", "right"]}
     >
       <KeyboardAvoidingView
-        style={styles.screen}
+        style={estilos.tela}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.container}
+          contentContainerStyle={estilos.conteiner}
         >
-          <Text style={styles.title}>Perfil</Text>
-          <View style={styles.identity}>
+          <Text style={estilos.titulo}>Perfil</Text>
+          <View style={estilos.identificacao}>
             <ImageBackground
               source={require("../../../assets/images/zen-landscape.png")}
-              style={styles.avatar}
-              imageStyle={styles.avatarImage}
+              style={estilos.avatar}
+              imageStyle={estilos.imagemAvatar}
             >
-              <Text style={styles.initials}>
-                {savedProfile?.name
+              <Text style={estilos.iniciais}>
+                {perfilSalvo?.name
                   .split(" ")
                   .filter(Boolean)
                   .slice(0, 2)
-                  .map((part) => part[0])
+                  .map((parte) => parte[0])
                   .join("") || "Z"}
               </Text>
             </ImageBackground>
-            <View style={styles.identityCopy}>
-              <Text style={styles.name}>
-                {savedProfile?.name ?? "Seu momento de calma"}
+            <View style={estilos.textosIdentificacao}>
+              <Text style={estilos.nome}>
+                {perfilSalvo?.name ?? "Seu momento de calma"}
               </Text>
-              <Text style={styles.description}>{points} pontos</Text>
+              <Text style={estilos.descricao}>{pontos} pontos</Text>
             </View>
           </View>
-          <Text style={styles.sectionLabel}>SUAS PREFERÊNCIAS</Text>
-          <View style={styles.formCard}>
+          <Text style={estilos.rotuloSecao}>SUAS PREFERÊNCIAS</Text>
+          <View style={estilos.cartaoFormulario}>
             <FormField
               label="Nome"
               placeholder="Seu nome"
-              value={form.name}
-              editable={!isSaving}
-              onChangeText={(value) => updateField("name", value)}
-              onBlur={() => markTouched("name")}
+              value={formulario.name}
+              editable={!salvando}
+              onChangeText={(valor) => atualizarCampo("name", valor)}
+              onBlur={() => marcarCampoVisitado("name")}
               autoCapitalize="words"
               autoComplete="name"
-              error={touched.name ? errors.name : undefined}
+              error={camposVisitados.name ? erros.name : undefined}
             />
             <FormField
               label="E-mail"
               placeholder="voce@exemplo.com"
-              value={form.email}
-              editable={!isSaving}
-              onChangeText={(value) => updateField("email", value)}
-              onBlur={() => markTouched("email")}
+              value={formulario.email}
+              editable={!salvando}
+              onChangeText={(valor) => atualizarCampo("email", valor)}
+              onBlur={() => marcarCampoVisitado("email")}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              error={touched.email ? errors.email : undefined}
+              error={camposVisitados.email ? erros.email : undefined}
             />
             <OptionSelector
               label="Objetivo"
               options={goalOptions}
-              value={form.goal}
-              disabled={isSaving}
-              onChange={(value) => updateField("goal", value)}
-              error={touched.goal ? errors.goal : undefined}
+              value={formulario.goal}
+              disabled={salvando}
+              onChange={(valor) => atualizarCampo("goal", valor)}
+              error={camposVisitados.goal ? erros.goal : undefined}
             />
             <OptionSelector
               label="Duração padrão"
               variant="segmented"
               options={durationOptions}
-              value={form.duration}
-              disabled={isSaving}
-              onChange={(value) => updateField("duration", value)}
-              error={touched.duration ? errors.duration : undefined}
+              value={formulario.duration}
+              disabled={salvando}
+              onChange={(valor) => atualizarCampo("duration", valor)}
+              error={camposVisitados.duration ? erros.duration : undefined}
             />
           </View>
 
-          {storageError && (
+          {erroArmazenamento && (
             <Text
               accessibilityRole="alert"
-              style={styles.error}
+              style={estilos.erro}
             >
-              {storageError}
+              {erroArmazenamento}
             </Text>
           )}
           <AppButton
-            title={isSaving ? "Salvando..." : "Salvar"}
-            onPress={handleSave}
-            disabled={isSaving}
+            title={salvando ? "Salvando..." : "Salvar"}
+            onPress={confirmarPerfil}
+            disabled={salvando}
           />
-          <Text style={styles.note}>
+          <Text style={estilos.observacao}>
             Seu perfil e suas preferências ficam salvos neste aparelho, mesmo
             sem internet.
           </Text>
 
-          {showConfirmation && savedProfile && (
-            <View style={styles.confirmation}>
+          {mostrarConfirmacao && perfilSalvo && (
+            <View style={estilos.confirmacao}>
               <Text
                 accessibilityRole="alert"
-                style={styles.success}
+                style={estilos.sucesso}
               >
                 Perfil salvo no aparelho.
               </Text>
-              <Text style={styles.summary}>{savedProfile.name}</Text>
-              <Text style={styles.summary}>{savedProfile.email}</Text>
-              <Text style={styles.summary}>
+              <Text style={estilos.resumo}>{perfilSalvo.name}</Text>
+              <Text style={estilos.resumo}>{perfilSalvo.email}</Text>
+              <Text style={estilos.resumo}>
                 {
                   goalOptions.find(
-                    (option) => option.value === savedProfile.goal,
+                    (opcao) => opcao.value === perfilSalvo.goal,
                   )?.label
                 }
                 {" · "}
-                {savedProfile.duration} segundos
+                {perfilSalvo.duration} segundos
               </Text>
             </View>
           )}
@@ -228,51 +228,51 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
+const estilos = StyleSheet.create({
+  tela: {
     flex: 1,
   },
-  container: {
-    ...screenContent,
+  conteiner: {
+    ...conteudoTela,
     gap: 18,
   },
-  title: {
-    color: colors.text,
+  titulo: {
+    color: cores.texto,
     fontSize: 34,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
   },
-  description: {
-    color: colors.textSecondary,
+  descricao: {
+    color: cores.textoSecundario,
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  note: {
-    color: colors.textSecondary,
+  observacao: {
+    color: cores.textoSecundario,
     fontSize: 13,
     lineHeight: 20,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     textAlign: "center",
   },
-  error: {
-    color: colors.error,
+  erro: {
+    color: cores.erro,
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  identity: {
+  identificacao: {
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
     marginBottom: 4,
   },
-  identityCopy: {
+  textosIdentificacao: {
     flex: 1,
     gap: 4,
   },
-  name: {
-    color: colors.text,
-    fontFamily: fonts.heading,
+  nome: {
+    color: cores.texto,
+    fontFamily: fontes.titulo,
     fontSize: 23,
   },
   avatar: {
@@ -281,41 +281,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarImage: {
+  imagemAvatar: {
     borderRadius: 25,
   },
-  initials: {
-    fontFamily: fonts.heading,
+  iniciais: {
+    fontFamily: fontes.titulo,
     fontSize: 26,
-    color: colors.text,
+    color: cores.texto,
   },
-  sectionLabel: {
-    color: colors.textSecondary,
-    fontFamily: fonts.bold,
+  rotuloSecao: {
+    color: cores.textoSecundario,
+    fontFamily: fontes.negrito,
     fontSize: 12,
     letterSpacing: 1.2,
   },
-  formCard: {
+  cartaoFormulario: {
     gap: 18,
     padding: 18,
-    backgroundColor: colors.surface,
+    backgroundColor: cores.superficie,
     borderRadius: 24,
   },
-  confirmation: {
-    backgroundColor: colors.surface,
+  confirmacao: {
+    backgroundColor: cores.superficie,
     borderRadius: 16,
     padding: 20,
     gap: 8,
   },
-  success: {
-    color: colors.success,
+  sucesso: {
+    color: cores.sucesso,
     fontSize: 16,
-    fontFamily: fonts.bold,
+    fontFamily: fontes.negrito,
   },
-  summary: {
-    color: colors.text,
+  resumo: {
+    color: cores.texto,
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
 });

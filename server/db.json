@@ -7,6 +7,14 @@
       "completedAt": "2026-10-20T03:54:42.993Z",
       "averageStability": 86,
       "stableMs": 27611
+    },
+    {
+      "id": "mvg5to5i-baea59uk",
+      "activity": "equilibrio-zen",
+      "durationSeconds": 30,
+      "completedAt": "2026-10-20T04:05:03.750Z",
+      "averageStability": 50,
+      "stableMs": 15035.007125020027
     }
   ]
 }

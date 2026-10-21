@@ -2,25 +2,25 @@ import type { SessionRecord } from "../types/session";
 import { api } from "./api";
 
 export async function getRemoteSessions(): Promise<SessionRecord[]> {
-  const response = await api.get<SessionRecord[]>("/sessions");
-  return response.data;
+  const resposta = await api.get<SessionRecord[]>("/sessions");
+  return resposta.data;
 }
 
-export async function sendSessions(sessions: SessionRecord[]): Promise<number> {
+export async function sendSessions(sessoes: SessionRecord[]): Promise<number> {
   // Busca a lista atual para não depender de uma consulta antiga da tela.
-  const remoteSessions = await getRemoteSessions();
-  let sentCount = 0;
+  const sessoesServidor = await getRemoteSessions();
+  let quantidadeEnviada = 0;
 
-  for (const session of sessions) {
-    const alreadySent = remoteSessions.some(
-      (remote) => remote.id === session.id,
+  for (const sessao of sessoes) {
+    const jaEnviada = sessoesServidor.some(
+      (sessaoServidor) => sessaoServidor.id === sessao.id,
     );
 
-    if (!alreadySent) {
-      await api.post("/sessions", session);
-      sentCount++;
+    if (!jaEnviada) {
+      await api.post("/sessions", sessao);
+      quantidadeEnviada++;
     }
   }
 
-  return sentCount;
+  return quantidadeEnviada;
 }

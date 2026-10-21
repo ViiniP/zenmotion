@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-import { colors, fonts } from "../constants/theme";
+import { cores, fontes } from "../constants/theme";
 import { useSessionApi } from "../hooks/useSessionApi";
 import { apiErrorMessage } from "../services/api";
 import type { SessionRecord } from "../types/session";
@@ -8,76 +8,76 @@ import { AppButton } from "./AppButton";
 import { IconButton } from "./IconButton";
 
 export function SessionSync({ sessions }: { sessions: SessionRecord[] }) {
-  const { remoteQuery, sendMutation } = useSessionApi();
-  const busy = remoteQuery.isFetching || sendMutation.isPending;
+  const { remoteQuery: consultaRemota, sendMutation: envioSessoes } = useSessionApi();
+  const desabilitado = consultaRemota.isFetching || envioSessoes.isPending;
 
   return (
-    <View style={styles.card}>
-      <View style={styles.heading}>
-        <Text style={styles.title}>Envio de sessões</Text>
+    <View style={estilos.cartao}>
+      <View style={estilos.cabecalhoSecao}>
+        <Text style={estilos.titulo}>Envio de sessões</Text>
         <IconButton
           name="refresh-outline"
           label="Atualizar consulta"
-          disabled={busy}
+          disabled={desabilitado}
           onPress={() => {
-            void remoteQuery.refetch();
+            void consultaRemota.refetch();
           }}
         />
       </View>
-      <Text style={styles.description}>
+      <Text style={estilos.descricao}>
         Seu histórico fica salvo no aparelho e pode ser consultado sem conexão.
       </Text>
-      {remoteQuery.isLoading && <ActivityIndicator color={colors.primary} />}
-      {remoteQuery.isFetching && (
-        <Text style={styles.description}>
+      {consultaRemota.isLoading && <ActivityIndicator color={cores.primaria} />}
+      {consultaRemota.isFetching && (
+        <Text style={estilos.descricao}>
           Consultando sessões no servidor...
         </Text>
       )}
-      {remoteQuery.data && (
-        <Text style={styles.description}>
-          Última consulta: {remoteQuery.data.length} sessões no servidor.
+      {consultaRemota.data && (
+        <Text style={estilos.descricao}>
+          Última consulta: {consultaRemota.data.length} sessões no servidor.
         </Text>
       )}
-      {remoteQuery.isError && !sendMutation.isError && (
+      {consultaRemota.isError && !envioSessoes.isError && (
         <Text
           accessibilityRole="alert"
-          style={styles.error}
+          style={estilos.erro}
         >
-          {apiErrorMessage(remoteQuery.error)} Seus registros locais continuam
+          {apiErrorMessage(consultaRemota.error)} Seus registros locais continuam
           disponíveis.
         </Text>
       )}
-      {sendMutation.isError && (
+      {envioSessoes.isError && (
         <Text
           accessibilityRole="alert"
-          style={styles.error}
+          style={estilos.erro}
         >
-          {apiErrorMessage(sendMutation.error)} Seus registros estão salvos no
+          {apiErrorMessage(envioSessoes.error)} Seus registros estão salvos no
           aparelho. Você pode repetir o envio.
         </Text>
       )}
-      {sendMutation.isSuccess && (
+      {envioSessoes.isSuccess && (
         <Text
           accessibilityLiveRegion="polite"
-          style={styles.success}
+          style={estilos.sucesso}
         >
-          {sendMutation.data === 0
+          {envioSessoes.data === 0
             ? "As sessões selecionadas já estavam no servidor."
-            : `${sendMutation.data} sessões enviadas nesta tentativa.`}
+            : `${envioSessoes.data} sessões enviadas nesta tentativa.`}
         </Text>
       )}
       <AppButton
-        title={sendMutation.isPending ? "Enviando..." : "Enviar sessões salvas"}
-        onPress={() => sendMutation.mutate([...sessions])}
-        disabled={busy || sessions.length === 0}
+        title={envioSessoes.isPending ? "Enviando..." : "Enviar sessões salvas"}
+        onPress={() => envioSessoes.mutate([...sessions])}
+        disabled={desabilitado || sessions.length === 0}
         variant="secondary"
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
+const estilos = StyleSheet.create({
+  cartao: {
     backgroundColor: "#292336",
     borderWidth: 1,
     borderColor: "#594253",
@@ -85,34 +85,34 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 12,
   },
-  heading: {
+  cabecalhoSecao: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 8,
   },
-  title: {
+  titulo: {
     color: "#F1C2AA",
     fontSize: 18,
-    fontFamily: fonts.bold,
+    fontFamily: fontes.negrito,
     flex: 1,
   },
-  description: {
+  descricao: {
     color: "#C5BBD1",
     fontSize: 14,
     lineHeight: 21,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  error: {
-    color: colors.error,
+  erro: {
+    color: cores.erro,
     fontSize: 14,
     lineHeight: 21,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  success: {
-    color: colors.success,
+  sucesso: {
+    color: cores.sucesso,
     fontSize: 14,
     lineHeight: 21,
-    fontFamily: fonts.medium,
+    fontFamily: fontes.seminegrito,
   },
 });

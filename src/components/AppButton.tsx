@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 
-import { colors, fonts } from "../constants/theme";
+import { cores, fontes } from "../constants/theme";
 
 type AppButtonProps = {
   title: string;
@@ -24,19 +24,19 @@ export function AppButton({
       aria-disabled={disabled}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        variant === "secondary" && styles.secondary,
-        variant === "text" && styles.textButton,
-        pressed && styles.pressed,
-        disabled && styles.disabled,
+      style={({ pressed: pressionado }) => [
+        estilos.botao,
+        variant === "secondary" && estilos.secundario,
+        variant === "text" && estilos.botaoTexto,
+        pressionado && estilos.pressionado,
+        disabled && estilos.desabilitado,
       ]}
     >
       <Text
         style={[
-          styles.label,
-          variant === "secondary" && styles.secondaryLabel,
-          variant === "text" && styles.textLabel,
+          estilos.rotulo,
+          variant === "secondary" && estilos.rotuloSecundario,
+          variant === "text" && estilos.rotuloBotaoTexto,
         ]}
       >
         {title}
@@ -45,9 +45,9 @@ export function AppButton({
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colors.primary,
+const estilos = StyleSheet.create({
+  botao: {
+    backgroundColor: cores.primaria,
     borderRadius: 20,
     minHeight: 52,
     paddingHorizontal: 20,
@@ -55,28 +55,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  pressed: {
+  pressionado: {
     opacity: 0.75,
   },
-  disabled: {
+  desabilitado: {
     opacity: 0.5,
   },
-  label: {
-    color: colors.background,
+  rotulo: {
+    color: cores.fundo,
     fontSize: 17,
-    fontFamily: fonts.bold,
+    fontFamily: fontes.negrito,
   },
-  secondary: {
-    backgroundColor: colors.surfaceSoft,
+  secundario: {
+    backgroundColor: cores.superficieSuave,
   },
-  textButton: {
+  botaoTexto: {
     backgroundColor: "transparent",
     paddingVertical: 10,
   },
-  secondaryLabel: {
-    color: colors.text,
+  rotuloSecundario: {
+    color: cores.texto,
   },
-  textLabel: {
-    color: colors.primary,
+  rotuloBotaoTexto: {
+    color: cores.primaria,
   },
 });

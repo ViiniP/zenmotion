@@ -7,87 +7,87 @@ import { ActivityCard } from "../../components/ActivityCard";
 import { OptionSelector } from "../../components/OptionSelector";
 import { Screen } from "../../components/Screen";
 import { durationOptions } from "../../constants/profile";
-import { colors, fonts } from "../../constants/theme";
+import { cores, fontes } from "../../constants/theme";
 import { useZenStore } from "../../stores/useZenStore";
 
 export default function ActivitiesScreen() {
   // O seletor acompanha a preferência salva no Perfil. O padrão inicial é 60 s.
-  const defaultDuration = useZenStore(
-    (state) => state.profile?.duration ?? "60",
+  const duracaoPadrao = useZenStore(
+    (estado) => estado.profile?.duration ?? "60",
   );
-  const [duration, setDuration] = useState(defaultDuration);
+  const [duracao, definirDuracao] = useState(duracaoPadrao);
   useFocusEffect(
     useCallback(() => {
-      setDuration(defaultDuration);
-    }, [defaultDuration]),
+      definirDuracao(duracaoPadrao);
+    }, [duracaoPadrao]),
   );
 
-  function openSession(duration: number) {
+  function abrirSessao(duracao: number) {
     // O nome da atividade e a duração são enviados para a próxima tela.
     router.push({
       pathname: "/sessao/[atividade]",
       params: {
         atividade: "equilibrio-zen",
-        duracao: String(duration),
+        duracao: String(duracao),
       },
     });
   }
 
   return (
     <Screen>
-      <View style={styles.heading}>
-        <Text style={styles.title}>Atividades</Text>
-        <Text style={styles.description}>
+      <View style={estilos.cabecalhoSecao}>
+        <Text style={estilos.titulo}>Atividades</Text>
+        <Text style={estilos.descricao}>
           Uma pausa para encontrar seu equilíbrio.
         </Text>
       </View>
       <OptionSelector
         label="Duração da sessão"
         options={durationOptions}
-        value={duration}
-        onChange={setDuration}
+        value={duracao}
+        onChange={definirDuracao}
         variant="segmented"
       />
       <ActivityCard
         large
-        duration={Number(duration)}
-        onPress={() => openSession(Number(duration))}
+        duration={Number(duracao)}
+        onPress={() => abrirSessao(Number(duracao))}
       />
-      <View style={styles.instructions}>
-        <Text style={styles.sectionTitle}>Como praticar</Text>
-        <View style={styles.step}>
+      <View style={estilos.instrucoes}>
+        <Text style={estilos.tituloSecao}>Como praticar</Text>
+        <View style={estilos.passo}>
           <Ionicons
             name="phone-portrait-outline"
-            color={colors.purple}
+            color={cores.roxo}
             size={23}
             accessible={false}
             aria-hidden
           />
-          <Text style={styles.stepText}>
+          <Text style={estilos.textoPasso}>
             Segure o celular deitado, com a tela para cima.
           </Text>
         </View>
-        <View style={styles.step}>
+        <View style={estilos.passo}>
           <Ionicons
             name="compass-outline"
-            color={colors.primary}
+            color={cores.primaria}
             size={23}
             accessible={false}
             aria-hidden
           />
-          <Text style={styles.stepText}>
+          <Text style={estilos.textoPasso}>
             Ajuste a inclinação e mantenha a esfera no centro.
           </Text>
         </View>
-        <View style={styles.step}>
+        <View style={estilos.passo}>
           <Ionicons
             name="leaf-outline"
-            color={colors.success}
+            color={cores.sucesso}
             size={23}
             accessible={false}
             aria-hidden
           />
-          <Text style={styles.stepText}>
+          <Text style={estilos.textoPasso}>
             Movimente-se devagar. Você pode pausar quando quiser.
           </Text>
         </View>
@@ -96,41 +96,41 @@ export default function ActivitiesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  heading: {
+const estilos = StyleSheet.create({
+  cabecalhoSecao: {
     gap: 6,
   },
-  title: {
-    color: colors.text,
+  titulo: {
+    color: cores.texto,
     fontSize: 34,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
   },
-  description: {
-    color: colors.textSecondary,
+  descricao: {
+    color: cores.textoSecundario,
     fontSize: 16,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     lineHeight: 24,
   },
-  instructions: {
+  instrucoes: {
     padding: 22,
     borderRadius: 24,
-    backgroundColor: colors.surface,
+    backgroundColor: cores.superficie,
     gap: 20,
   },
-  sectionTitle: {
-    color: colors.text,
-    fontFamily: fonts.bold,
+  tituloSecao: {
+    color: cores.texto,
+    fontFamily: fontes.negrito,
     fontSize: 20,
   },
-  step: {
+  passo: {
     flexDirection: "row",
     gap: 14,
     alignItems: "center",
   },
-  stepText: {
+  textoPasso: {
     flex: 1,
     color: "#C9C3DE",
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     fontSize: 15,
     lineHeight: 22,
   },

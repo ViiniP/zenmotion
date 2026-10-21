@@ -11,7 +11,7 @@ import { HistoryStatus } from "../../components/HistoryStatus";
 import { IconButton } from "../../components/IconButton";
 import { LandscapeHeader } from "../../components/LandscapeHeader";
 import { Screen } from "../../components/Screen";
-import { colors, fonts } from "../../constants/theme";
+import { cores, fontes } from "../../constants/theme";
 import { useSessionStore } from "../../stores/useSessionStore";
 import { formatSessionDate, formatStableTime } from "../../utils/sessionRecord";
 
@@ -19,20 +19,20 @@ export default function ResultScreen() {
   const { id } = useLocalSearchParams<{
     id: string;
   }>();
-  const loadStatus = useSessionStore((state) => state.loadStatus);
-  const insets = useSafeAreaInsets();
+  const estadoCarregamento = useSessionStore((estado) => estado.loadStatus);
+  const margensSeguras = useSafeAreaInsets();
   // A rota transporta só o ID; os dados vêm do histórico salvo no Zustand.
-  const session = useSessionStore((state) =>
-    state.sessions.find((item) => item.id === id),
+  const sessao = useSessionStore((estado) =>
+    estado.sessions.find((item) => item.id === id),
   );
 
-  if (loadStatus !== "ready") return <HistoryStatus />;
+  if (estadoCarregamento !== "ready") return <HistoryStatus />;
 
-  if (!session) {
+  if (!sessao) {
     return (
       <Screen edges={["top", "left", "right", "bottom"]}>
-        <Text style={styles.title}>Resultado não encontrado</Text>
-        <Text style={styles.description}>
+        <Text style={estilos.titulo}>Resultado não encontrado</Text>
+        <Text style={estilos.descricao}>
           Esta sessão não está no histórico deste aparelho.
         </Text>
         <AppButton
@@ -46,18 +46,18 @@ export default function ResultScreen() {
   return (
     <SafeAreaView
       edges={["left", "right", "bottom"]}
-      style={styles.screen}
+      style={estilos.tela}
     >
       <ScrollView
-        contentContainerStyle={styles.page}
+        contentContainerStyle={estilos.pagina}
         showsVerticalScrollIndicator={false}
       >
         <LandscapeHeader>
           <View
             style={[
-              styles.close,
+              estilos.fechar,
               {
-                top: Math.max(insets.top + 8, 16),
+                top: Math.max(margensSeguras.top + 8, 16),
               },
             ]}
           >
@@ -69,47 +69,47 @@ export default function ResultScreen() {
           </View>
           <View
             style={[
-              styles.scoreCard,
+              estilos.cartaoPontuacao,
               {
-                marginTop: Math.max(insets.top + 30, 60),
+                marginTop: Math.max(margensSeguras.top + 30, 60),
               },
             ]}
           >
-            <Text style={styles.score}>{session.averageStability}</Text>
-            <Text style={styles.scoreLabel}>pontos de 100</Text>
+            <Text style={estilos.pontuacao}>{sessao.averageStability}</Text>
+            <Text style={estilos.rotuloPontuacao}>pontos de 100</Text>
           </View>
         </LandscapeHeader>
-        <View style={styles.container}>
-          <Text style={styles.title}>
-            {session.averageStability >= 80
+        <View style={estilos.conteiner}>
+          <Text style={estilos.titulo}>
+            {sessao.averageStability >= 80
               ? "Muito estável"
-              : session.averageStability >= 60
+              : sessao.averageStability >= 60
                 ? "Bom equilíbrio"
                 : "Um passo de cada vez"}
           </Text>
-          <Text style={styles.subtitle}>
-            Equilíbrio Zen · {session.durationSeconds} s
+          <Text style={estilos.subtitulo}>
+            Equilíbrio Zen · {sessao.durationSeconds} s
           </Text>
-          <View style={styles.metrics}>
-            <View style={styles.metricRow}>
-              <Text style={styles.metric}>Estabilidade média</Text>
-              <Text style={styles.value}>{session.averageStability}%</Text>
+          <View style={estilos.metricas}>
+            <View style={estilos.linhaMetrica}>
+              <Text style={estilos.metrica}>Estabilidade média</Text>
+              <Text style={estilos.valor}>{sessao.averageStability}%</Text>
             </View>
-            <View style={styles.metricRow}>
-              <Text style={styles.metric}>Tempo na faixa</Text>
-              <Text style={styles.value}>
-                {formatStableTime(session.stableMs)}
+            <View style={estilos.linhaMetrica}>
+              <Text style={estilos.metrica}>Tempo na faixa</Text>
+              <Text style={estilos.valor}>
+                {formatStableTime(sessao.stableMs)}
               </Text>
             </View>
-            <View style={styles.statusRow}>
+            <View style={estilos.linhaSituacao}>
               <Ionicons
                 name="checkmark-circle-outline"
                 size={20}
-                color={colors.success}
+                color={cores.sucesso}
                 accessible={false}
                 aria-hidden
               />
-              <Text style={styles.saved}>Salvo no aparelho</Text>
+              <Text style={estilos.salvo}>Salvo no aparelho</Text>
             </View>
           </View>
           <AppButton
@@ -123,14 +123,14 @@ export default function ResultScreen() {
               router.replace({
                 pathname: "/sessao/[atividade]",
                 params: {
-                  atividade: session.activity,
-                  duracao: String(session.durationSeconds),
+                  atividade: sessao.activity,
+                  duracao: String(sessao.durationSeconds),
                 },
               })
             }
           />
-          <Text style={styles.date}>
-            {formatSessionDate(session.completedAt)}
+          <Text style={estilos.data}>
+            {formatSessionDate(sessao.completedAt)}
           </Text>
         </View>
       </ScrollView>
@@ -138,41 +138,41 @@ export default function ResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: {
+const estilos = StyleSheet.create({
+  tela: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: cores.fundo,
   },
-  page: {
+  pagina: {
     paddingBottom: 20,
   },
-  container: {
+  conteiner: {
     padding: 20,
     gap: 14,
     width: "100%",
     maxWidth: 600,
     alignSelf: "center",
   },
-  title: {
-    color: colors.text,
+  titulo: {
+    color: cores.texto,
     fontSize: 30,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
     textAlign: "center",
   },
-  subtitle: {
-    color: colors.textSecondary,
+  subtitulo: {
+    color: cores.textoSecundario,
     fontSize: 17,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     textAlign: "center",
     marginBottom: 10,
   },
-  description: {
-    color: colors.textSecondary,
+  descricao: {
+    color: cores.textoSecundario,
     fontSize: 16,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     lineHeight: 24,
   },
-  scoreCard: {
+  cartaoPontuacao: {
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
@@ -183,63 +183,63 @@ const styles = StyleSheet.create({
     borderColor: "#C49EDE",
     backgroundColor: "#28204B88",
   },
-  score: {
-    color: colors.text,
+  pontuacao: {
+    color: cores.texto,
     fontSize: 68,
-    fontFamily: fonts.heading,
+    fontFamily: fontes.titulo,
     lineHeight: 82,
   },
-  scoreLabel: {
+  rotuloPontuacao: {
     color: "#D8CCEC",
     fontSize: 16,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  metrics: {
-    backgroundColor: colors.surface,
+  metricas: {
+    backgroundColor: cores.superficie,
     borderRadius: 24,
     paddingHorizontal: 20,
     marginBottom: 10,
   },
-  metricRow: {
+  linhaMetrica: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 18,
     gap: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: cores.borda,
   },
-  metric: {
+  metrica: {
     flex: 1,
-    color: colors.text,
+    color: cores.texto,
     fontSize: 16,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
   },
-  value: {
-    color: colors.textSecondary,
+  valor: {
+    color: cores.textoSecundario,
     fontSize: 18,
-    fontFamily: fonts.medium,
+    fontFamily: fontes.seminegrito,
   },
-  statusRow: {
+  linhaSituacao: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     paddingVertical: 18,
   },
-  saved: {
-    color: colors.success,
+  salvo: {
+    color: cores.sucesso,
     fontSize: 16,
-    fontFamily: fonts.medium,
+    fontFamily: fontes.seminegrito,
   },
-  date: {
-    color: colors.textSecondary,
+  data: {
+    color: cores.textoSecundario,
     fontSize: 12,
-    fontFamily: fonts.regular,
+    fontFamily: fontes.regular,
     textAlign: "center",
     marginTop: 6,
   },
-  close: {
+  fechar: {
     position: "absolute",
     right: 20,
     zIndex: 1,

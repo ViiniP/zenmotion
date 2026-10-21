@@ -1,6 +1,6 @@
 # Guia de estudo do código do ZenMotion
 
-Base: código do projeto em 20/10/2026, com Expo SDK 57.0.0 e a integração de API simplificada. Público: integrantes do grupo que precisam entender, demonstrar e explicar o aplicativo.
+Base: código do projeto em 20/10/2026, com Expo SDK 57.0.0, validações concentradas no formulário e nomes locais em português. Público: integrantes do grupo que precisam entender, demonstrar e explicar o aplicativo.
 
 Este guia explica os arquivos escritos para o projeto e como eles trabalham juntos. Não é necessário estudar o código interno das bibliotecas em `node_modules`. Os links para arquivos usam caminhos relativos para continuar funcionando quando o projeto for levado para outro computador.
 
@@ -124,7 +124,7 @@ Nos efeitos, o array de dependências informa quais valores exigem atualizar aqu
 | `void operação()` | Ignorar o valor retornado; não é tratamento de erro |
 | `return` | Encerrar a função; pode entregar um valor |
 
-TypeScript verifica o código durante o desenvolvimento. Ele não transforma automaticamente dados vindos de JSON em dados válidos. Por isso há verificações reais no storage. A API simplificada utiliza o formato esperado sem aquela verificação detalhada.
+TypeScript verifica o código durante o desenvolvimento. Ele não transforma automaticamente dados vindos de JSON em dados válidos. Nesta versão mais simples, validamos o perfil na tela e esperamos que os registros armazenados e recebidos sigam o formato do aplicativo. Não verificamos cada campo novamente ao ler ou gravar. JSON malformado ainda gera erro no `JSON.parse`, e o histórico mantém uma verificação de lista.
 
 ### Operações com listas
 
@@ -133,11 +133,28 @@ TypeScript verifica o código durante o desenvolvimento. Ele não transforma aut
 | `map` | Criar os elementos visuais de cada opção |
 | `find` | Buscar uma sessão pelo ID ou uma opção pelo valor |
 | `some` | Perguntar se já existe uma sessão com o ID |
-| `every` | Verificar se todos os registros locais são válidos |
+| `every` | Verificar se os três eixos de uma leitura de sensor têm valores finitos |
 | `filter` | Remover palavras vazias ao formar iniciais do nome |
 | `reduce` | Acumular pontos, duração total e melhor nota |
 | `sort` | Ordenar as sessões por data |
 | `for...of` | Percorrer as sessões para enviá-las, aguardando cada POST |
+
+### Nomes em português nesta versão
+
+Os nomes locais descrevem o que o valor representa. As funções exportadas, os campos de tipos/JSON e as chaves do AsyncStorage mantêm seus nomes para não exigir mudanças em todas as telas nem nos dados já salvos.
+
+| Nome no código | Significado |
+| --- | --- |
+| `textoSalvo` | JSON recuperado do AsyncStorage |
+| `perfil`, `sessao`, `sessoes` | Dados que estão sendo lidos ou gravados |
+| `historicoCarregado` | Resultado da tentativa de recuperar o histórico antes de salvar |
+| `erros`, `nome` | Mensagens do formulário e texto do nome sem espaços externos |
+| `sessoesServidor`, `jaEnviada`, `quantidadeEnviada` | Lista remota, resultado da comparação de ID e contador do envio |
+| `aceleracao`, `rotacao`, `aceleracaoVisual` | Sinais usados na nota e na exibição |
+| `inclinacaoGraus`, `velocidadeRotacao`, `variacaoAceleracao` | Medidas extraídas dos sensores |
+| `fatorInclinacao`, `fatorRotacao`, `fatorAceleracao` | Fatores entre 0 e 1 multiplicados para gerar a nota |
+| `progresso`, `leitura`, `intervaloAceito`, `duracaoMs` | Dados usados para acumular o tempo da atividade |
+| `pontos`, `segundos` | Totais derivados do histórico |
 
 ## 4. Inicialização e navegação
 
@@ -206,7 +223,7 @@ O botão Salvar fica bloqueado durante a gravação. Dados inválidos são imped
 
 ### Regras: `utils/validators.ts`
 
-[validateProfile](../src/utils/validators.ts) começa com um objeto de erros vazio. Exige nome com pelo menos três caracteres após `trim`, e-mail com formato básico, objetivo da lista e duração da lista. A expressão regular do e-mail verifica a estrutura; não consulta se a caixa existe.
+[validateProfile](../src/utils/validators.ts) começa com o objeto `erros` vazio. Exige nome preenchido após `trim`, e-mail com formato básico, objetivo da lista e duração da lista. A expressão regular do e-mail verifica a estrutura; não consulta se a caixa existe. Não há tamanho mínimo adicional para o nome.
 
 `Object.keys(errors).length > 0` significa que há pelo menos uma mensagem. Sem erros, `handleSave` remove espaços externos de nome/e-mail e aguarda `saveProfile`. Somente se receber `true`, confirma o salvamento e fecha o teclado.
 
@@ -229,7 +246,7 @@ Esse seletor entrega o perfil à tela. Quando a ação de salvar altera o perfil
 [useZenStore](../src/stores/useZenStore.ts) guarda `profile`, `loadStatus`, `isSaving` e `storageError`.
 
 - `loadProfile` evita iniciar leituras se já está carregando ou pronto. Muda o status para `loading`, aguarda `readProfile`, e publica o perfil com `ready`. Em falha, publica `error` e uma mensagem.
-- `saveProfile` evita gravações simultâneas ou antes da leitura. Faz uma cópia, ativa `isSaving`, aguarda `writeProfile` e somente depois troca o perfil global. Retorna `true` no sucesso e `false` no erro.
+- `saveProfile` recebe `perfil`, evita gravações simultâneas ou antes da leitura, ativa `isSaving`, aguarda `writeProfile` e somente depois troca o perfil global. Retorna `true` no sucesso e `false` no erro.
 
 Escrever primeiro e publicar depois evita mostrar como salvo um dado que falhou ao gravar.
 
@@ -237,7 +254,7 @@ Escrever primeiro e publicar depois evita mostrar como salvo um dado que falhou 
 
 [profileStorage](../src/storage/profileStorage.ts) usa a chave `@zenmotion/profile`.
 
-`writeProfile` valida, transforma o objeto em texto com `JSON.stringify` e usa `AsyncStorage.setItem`. `readProfile` usa `getItem`, retorna `null` se não há dado e, se houver, usa `JSON.parse`, verifica a estrutura e aplica as regras do formulário.
+`writeProfile` recebe o perfil já validado pela tela, transforma o objeto em texto com `JSON.stringify` e usa `AsyncStorage.setItem`. `readProfile` usa `getItem`, retorna `null` se não há dado e, se houver, usa `JSON.parse`. `CHAVE_PERFIL` mantém o mesmo texto de chave usado antes; `textoSalvo` é o valor recuperado. Não repetimos a validação do formulário no storage.
 
 AsyncStorage guarda valores de texto. `JSON.stringify` converte objeto em texto; `JSON.parse` faz o caminho de volta. JSON inválido lança erro, que chega ao `catch` da store.
 
@@ -245,17 +262,17 @@ AsyncStorage guarda valores de texto. `JSON.stringify` converte objeto em texto;
 
 [useSessionStore](../src/stores/useSessionStore.ts) guarda a lista `sessions`, status/erro de leitura e status/erro de gravação.
 
-- `loadSessions`: se já está pronto, retorna sucesso. Se uma leitura está em andamento, devolve `loadPromise`, a mesma promessa pendente. Caso contrário, lê o storage, publica a lista e libera a promessa no `finally`.
-- `saveSession`: copia o resultado, bloqueia gravações simultâneas e garante que o histórico foi carregado. Se o ID já existe, considera o registro salvo. Caso contrário, acrescenta o resultado, ordena por data, grava a lista e depois atualiza a store.
+- `loadSessions`: se já está pronto, retorna `true`. Se uma leitura está em andamento, retorna `false` sem iniciar outra. Caso contrário, lê o storage, publica a lista e retorna sucesso. Em falha, registra a mensagem e retorna `false`.
+- `saveSession`: recebe `sessao`, bloqueia gravações simultâneas e chama `loadSessions`. Se o histórico ainda não estiver disponível, mostra uma mensagem para tentar novamente, sem sobrescrever a lista. Se o ID já existe, considera o registro salvo. Caso contrário, acrescenta o resultado, ordena por data, grava a lista e depois atualiza a store.
 - `finally` desativa `isSaving` tanto em sucesso quanto em falha, inclusive quando houve um retorno antecipado dentro do `try`.
 
-`loadPromise` fica na função que cria a store e continua acessível por fechamento de escopo, também chamado de *closure*. Não é uma segunda lista nem um dado gravado. Sua função é compartilhar a leitura em andamento.
+O fluxo agora usa apenas funções `async`, `try/catch` e o status de leitura. Não há promessa compartilhada ou função assíncrona aninhada. Se tentar salvar enquanto a leitura inicial ainda estiver em andamento, aguarde e toque em salvar novamente; o resultado permanece na tela.
 
 ### `storage/sessionStorage.ts`
 
-[sessionStorage](../src/storage/sessionStorage.ts) usa a chave `@zenmotion/sessions`. `readSessions` retorna lista vazia se não existe histórico; caso contrário, interpreta e valida o JSON e ordena pela data. `writeSessions` valida e grava a lista inteira.
+[sessionStorage](../src/storage/sessionStorage.ts) usa a constante `CHAVE_SESSOES`, com o texto `@zenmotion/sessions`. `readSessions` retorna lista vazia se não existe histórico; caso contrário, interpreta o JSON, verifica com `Array.isArray` se é uma lista e ordena pela data. `writeSessions` grava a lista inteira.
 
-`validateSessions` verifica que recebeu um array, que todos os itens passam por `isSessionRecord` e que os IDs não se repetem. Aqui ainda há `Set`: ele forma um conjunto de IDs únicos; se seu tamanho é menor que o tamanho da lista, havia repetição. Essa proteção é do armazenamento local, não faz parte da API simplificada.
+A verificação detalhada de cada registro e o `Set` de IDs foram removidos. O resultado nasce no próprio aplicativo e a store já evita acrescentar novamente um ID salvo. O formato de cada registro lido é assumido; edições externas ou dados antigos com outro formato podem exigir tratamento que esta versão não implementa.
 
 Perfil e histórico usam chaves separadas. Uma falha de rede não altera essas chaves. Limpar os dados do aplicativo pode apagar o armazenamento local; apenas fechar e reabrir normalmente não o apaga.
 
@@ -404,7 +421,7 @@ As etapas são:
 2. Dados não finitos ou aceleração de módulo menor que 0,1 retornam nota zero e fora da faixa. Não reutilizamos uma leitura estável antiga.
 3. `atan2` estima a inclinação pela relação entre aceleração lateral e eixo Z. Multiplicar por `180 / Math.PI` converte radianos em graus. O valor absoluto de Z permite os dois sinais de gravidade.
 4. `Math.abs(magnitude - 1)` calcula quanto o módulo da aceleração se afastou de 1 g.
-5. `clamp` limita cada fator entre 0 e 1.
+5. `limitar` mantém cada fator entre 0 e 1.
 6. A pontuação multiplica os três fatores e converte para um inteiro de 0 a 100.
 
 ```text
@@ -465,8 +482,7 @@ A leitura com mais tempo pesa mais. Fazer apenas `(100 + 50) / 2` daria 75 e nã
 
 | Função | Responsabilidade |
 | --- | --- |
-| `isSessionRecord` | Conferir campos, atividade, duração válida, data interpretável, nota inteira entre 0 e 100 e tempo estável dentro da duração |
-| `createSessionRecord` | Exigir duração concluída, gerar ID/data, calcular média e produzir o resumo final |
+| `createSessionRecord` | Receber `progresso` e `duracaoSegundos`, exigir duração concluída, gerar ID/data, calcular média e produzir diretamente o resumo final |
 | `formatSessionDate` | Mostrar data/hora em formato brasileiro no fuso do aparelho |
 | `formatStableTime` | Converter milissegundos em segundos, com uma casa decimal e vírgula |
 
@@ -523,9 +539,9 @@ No celular, `localhost` aponta para o celular. Para a API no computador, usamos 
 `sendSessions(sessions)`:
 
 1. Faz GET para conhecer a lista atual.
-2. Inicia `sentCount` em zero.
+2. Inicia `quantidadeEnviada` em zero.
 3. Percorre a lista local com `for...of`.
-4. `remoteSessions.some(remote => remote.id === session.id)` verifica se o ID já existe.
+4. `sessoesServidor.some(sessaoServidor => sessaoServidor.id === sessao.id)` verifica se o ID já existe.
 5. Se não existe, aguarda `api.post("/sessions", session)` e soma um ao contador.
 6. Retorna o total enviado nessa tentativa.
 
@@ -562,7 +578,7 @@ Invalidar marca a consulta como desatualizada; uma consulta ativa normalmente é
 
 ### `components/SessionSync.tsx`
 
-[SessionSync](../src/components/SessionSync.tsx) recebe a lista local por props e usa o hook acima. `busy` combina consulta em andamento e envio em andamento para bloquear ações concorrentes na interface.
+[SessionSync](../src/components/SessionSync.tsx) recebe a lista local por props e usa o hook acima. `desabilitado` combina consulta em andamento e envio em andamento para bloquear ações concorrentes na interface.
 
 | Propriedade/ação | O que a tela faz |
 | --- | --- |
@@ -782,8 +798,8 @@ O `Map` desse helper guarda módulos já carregados. `createRequire` resolve bib
 | Situação | Responsável e resposta |
 | --- | --- |
 | Nome/e-mail inválido | `validateProfile` + tela: mensagem e interrupção do salvamento |
-| Perfil local ilegível | Storage lança erro; store muda status; layout oferece nova tentativa |
-| Histórico local ilegível | Store registra erro; `HistoryStatus` oferece nova tentativa |
+| JSON do perfil malformado ou falha de leitura | Store muda status; layout oferece nova tentativa |
+| JSON do histórico malformado, valor que não é lista ou falha de leitura | Store registra erro; `HistoryStatus` oferece nova tentativa |
 | Gravação local falha | Store retorna `false`; interface mostra erro e não confirma como salvo |
 | Permissão negada/sensor ausente | Serviço remove recursos; hook pausa e mostra mensagem |
 | Sensor deixa de emitir | Watchdog detecta; serviço para; hook pausa |

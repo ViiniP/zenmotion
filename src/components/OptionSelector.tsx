@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, fonts } from "../constants/theme";
+import { cores, fontes } from "../constants/theme";
 
 type OptionSelectorProps = {
   label: string;
@@ -9,7 +9,7 @@ type OptionSelectorProps = {
     value: string;
   }[];
   value: string;
-  onChange: (value: string) => void;
+  onChange: (valor: string) => void;
   error?: string;
   disabled?: boolean;
   variant?: "chips" | "segmented";
@@ -25,40 +25,40 @@ export function OptionSelector({
   variant = "chips",
 }: OptionSelectorProps) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+    <View style={estilos.conteiner}>
+      <Text style={estilos.rotulo}>{label}</Text>
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel={label}
-        style={[styles.options, variant === "segmented" && styles.segmented]}
+        style={[estilos.opcoes, variant === "segmented" && estilos.segmentado]}
       >
-        {options.map((option) => (
+        {options.map((opcao) => (
           <Pressable
-            key={option.value}
+            key={opcao.value}
             accessibilityRole="radio"
             accessibilityState={{
-              checked: option.value === value,
+              checked: opcao.value === value,
               disabled,
             }}
-            aria-checked={option.value === value}
+            aria-checked={opcao.value === value}
             aria-disabled={disabled}
             disabled={disabled}
-            onPress={() => onChange(option.value)}
+            onPress={() => onChange(opcao.value)}
             style={[
-              styles.option,
-              variant === "segmented" && styles.segment,
-              error && styles.optionError,
-              option.value === value && styles.selectedOption,
-              disabled && styles.disabled,
+              estilos.opcao,
+              variant === "segmented" && estilos.segmento,
+              error && estilos.opcaoComErro,
+              opcao.value === value && estilos.opcaoSelecionada,
+              disabled && estilos.desabilitado,
             ]}
           >
             <Text
               style={[
-                styles.optionText,
-                option.value === value && styles.selectedText,
+                estilos.textoOpcao,
+                opcao.value === value && estilos.textoSelecionado,
               ]}
             >
-              {option.label}
+              {opcao.label}
             </Text>
           </Pressable>
         ))}
@@ -66,7 +66,7 @@ export function OptionSelector({
       {error && (
         <Text
           accessibilityRole="alert"
-          style={styles.error}
+          style={estilos.erro}
         >
           {error}
         </Text>
@@ -75,56 +75,56 @@ export function OptionSelector({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const estilos = StyleSheet.create({
+  conteiner: {
     gap: 8,
   },
-  label: {
-    color: colors.textSecondary,
+  rotulo: {
+    color: cores.textoSecundario,
     fontSize: 14,
-    fontFamily: fonts.bold,
+    fontFamily: fontes.negrito,
   },
-  options: {
+  opcoes: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
   },
-  option: {
+  opcao: {
     minHeight: 48,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: cores.borda,
     borderRadius: 24,
-    backgroundColor: colors.surface,
+    backgroundColor: cores.superficie,
     paddingHorizontal: 10,
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  optionError: {
-    borderColor: colors.error,
+  opcaoComErro: {
+    borderColor: cores.erro,
   },
-  selectedOption: {
+  opcaoSelecionada: {
     backgroundColor: "#6F688D",
-    borderColor: colors.primary,
+    borderColor: cores.primaria,
   },
-  optionText: {
+  textoOpcao: {
     color: "#D8D2EB",
     fontSize: 14,
-    fontFamily: fonts.medium,
+    fontFamily: fontes.seminegrito,
     textAlign: "center",
   },
-  selectedText: {
-    color: colors.text,
-    fontFamily: fonts.bold,
+  textoSelecionado: {
+    color: cores.texto,
+    fontFamily: fontes.negrito,
   },
-  segmented: {
+  segmentado: {
     flexWrap: "nowrap",
-    backgroundColor: colors.surfaceSoft,
+    backgroundColor: cores.superficieSuave,
     borderRadius: 18,
     padding: 4,
     gap: 4,
   },
-  segment: {
+  segmento: {
     flex: 1,
     borderRadius: 14,
     borderWidth: 0,
@@ -132,11 +132,11 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     paddingHorizontal: 8,
   },
-  disabled: {
+  desabilitado: {
     opacity: 0.5,
   },
-  error: {
-    color: colors.error,
+  erro: {
+    color: cores.erro,
     fontSize: 14,
     lineHeight: 20,
   },
