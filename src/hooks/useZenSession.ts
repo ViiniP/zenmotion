@@ -35,41 +35,6 @@ export function useZenSession(durationSeconds: number) {
     setStatus(next);
   }, []);
 
-  const handleReading = useCallback(
-    (value: StabilityReading, timestamp: number) => {
-      if (statusRef.current !== "running") return;
-      setReading(value);
-      const previous = lastReadingAt.current;
-      lastReadingAt.current = timestamp;
-      if (previous === null) return;
-
-      const next = advanceProgress(
-        progressRef.current,
-        value,
-        timestamp - previous,
-        durationSeconds * 1000,
-      );
-      progressRef.current = next;
-      setProgress(next);
-      if (next.elapsedMs >= durationSeconds * 1000) {
-        sensorsRef.current?.stop();
-        // O mesmo registro é reutilizado se a gravação precisar ser repetida.
-        setResult(createSessionRecord(next, durationSeconds));
-        changeStatus("finished");
-      }
-    },
-    [changeStatus, durationSeconds],
-  );
-
-  const handleError = useCallback(
-    (error: string) => {
-      lastReadingAt.current = null;
-      setMessage(error);
-      changeStatus("paused");
-    },
-    [changeStatus],
-  );
-
   const pause = useCallback(() => {
     if (statusRef.current !== "running" && statusRef.current !== "checking")
       return;
@@ -79,7 +44,36 @@ export function useZenSession(durationSeconds: number) {
   }, [changeStatus]);
 
   useEffect(() => {
-    const sensors = createMotionSensors(handleReading, handleError);
+    function receberLeitura(leitura: StabilityReading, instante: number) {
+      if (statusRef.current !== "running") return;
+      setReading(leitura);
+      const instanteAnterior = lastReadingAt.current;
+      lastReadingAt.current = instante;
+      if (instanteAnterior === null) return;
+
+      const progresso = advanceProgress(
+        progressRef.current,
+        leitura,
+        instante - instanteAnterior,
+        durationSeconds * 1000,
+      );
+      progressRef.current = progresso;
+      setProgress(progresso);
+      if (progresso.elapsedMs >= durationSeconds * 1000) {
+        sensorsRef.current?.stop();
+        // O mesmo registro é reutilizado se a gravação precisar ser repetida.
+        setResult(createSessionRecord(progresso, durationSeconds));
+        changeStatus("finished");
+      }
+    }
+
+    function receberErro(erro: string) {
+      lastReadingAt.current = null;
+      setMessage(erro);
+      changeStatus("paused");
+    }
+
+    const sensors = createMotionSensors(receberLeitura, receberErro);
     sensorsRef.current = sensors;
     const appState = AppState.addEventListener("change", (next) => {
       // O diálogo de permissão pode deixar o iOS inativo enquanto verificamos.
@@ -96,11 +90,11 @@ export function useZenSession(durationSeconds: number) {
       sensorsRef.current = null;
       statusRef.current = "paused";
     };
-  }, [handleError, handleReading, pause]);
+  }, [changeStatus, durationSeconds, pause]);
 
   useFocusEffect(useCallback(() => () => pause(), [pause]));
 
-  const start = useCallback(async () => {
+  async function start() {
     const currentStatus = statusRef.current;
     if (
       currentStatus === "running" ||
@@ -117,22 +111,19 @@ export function useZenSession(durationSeconds: number) {
     const started = await sensors.start();
     if (statusRef.current !== "checking") return;
     if (started) changeStatus("running");
-  }, [changeStatus]);
+  }
 
-  const reset = useCallback(() => {
+  function reset() {
     sensorsRef.current?.stop();
-    progressRef.current = {
-      ...INITIAL_PROGRESS,
-    };
+    const progressoInicial = { ...INITIAL_PROGRESS };
+    progressRef.current = progressoInicial;
     lastReadingAt.current = null;
-    setProgress({
-      ...INITIAL_PROGRESS,
-    });
+    setProgress(progressoInicial);
     setReading(null);
     setMessage(null);
     changeStatus("ready");
     setResult(null);
-  }, [changeStatus]);
+  }
 
   return {
     status,

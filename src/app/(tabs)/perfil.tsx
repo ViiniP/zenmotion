@@ -44,12 +44,7 @@ export default function ProfileScreen() {
           duration: "60",
         },
   );
-  const [camposVisitados, definirCamposVisitados] = useState({
-    name: false,
-    email: false,
-    goal: false,
-    duration: false,
-  });
+  const [mostrarErros, definirMostrarErros] = useState(false);
   const [mostrarConfirmacao, definirMostrarConfirmacao] = useState(false);
 
   // Recalcular as regras a cada alteração mantém o feedback atualizado.
@@ -60,27 +55,12 @@ export default function ProfileScreen() {
       ...atual,
       [campo]: valor,
     }));
-    definirCamposVisitados((atual) => ({
-      ...atual,
-      [campo]: true,
-    }));
+    definirMostrarErros(true);
     definirMostrarConfirmacao(false);
   }
 
-  function marcarCampoVisitado(campo: keyof ProfileForm) {
-    definirCamposVisitados((atual) => ({
-      ...atual,
-      [campo]: true,
-    }));
-  }
-
   async function confirmarPerfil() {
-    definirCamposVisitados({
-      name: true,
-      email: true,
-      goal: true,
-      duration: true,
-    });
+    definirMostrarErros(true);
     definirMostrarConfirmacao(false);
 
     // Dados inválidos não são confirmados.
@@ -146,10 +126,10 @@ export default function ProfileScreen() {
               value={formulario.name}
               editable={!salvando}
               onChangeText={(valor) => atualizarCampo("name", valor)}
-              onBlur={() => marcarCampoVisitado("name")}
+              onBlur={() => definirMostrarErros(true)}
               autoCapitalize="words"
               autoComplete="name"
-              error={camposVisitados.name ? erros.name : undefined}
+              error={mostrarErros ? erros.name : undefined}
             />
             <FormField
               label="E-mail"
@@ -157,12 +137,12 @@ export default function ProfileScreen() {
               value={formulario.email}
               editable={!salvando}
               onChangeText={(valor) => atualizarCampo("email", valor)}
-              onBlur={() => marcarCampoVisitado("email")}
+              onBlur={() => definirMostrarErros(true)}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
-              error={camposVisitados.email ? erros.email : undefined}
+              error={mostrarErros ? erros.email : undefined}
             />
             <OptionSelector
               label="Objetivo"
@@ -170,7 +150,7 @@ export default function ProfileScreen() {
               value={formulario.goal}
               disabled={salvando}
               onChange={(valor) => atualizarCampo("goal", valor)}
-              error={camposVisitados.goal ? erros.goal : undefined}
+              error={mostrarErros ? erros.goal : undefined}
             />
             <OptionSelector
               label="Duração padrão"
@@ -179,7 +159,7 @@ export default function ProfileScreen() {
               value={formulario.duration}
               disabled={salvando}
               onChange={(valor) => atualizarCampo("duration", valor)}
-              error={camposVisitados.duration ? erros.duration : undefined}
+              error={mostrarErros ? erros.duration : undefined}
             />
           </View>
 

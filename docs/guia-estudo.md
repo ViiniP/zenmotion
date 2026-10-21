@@ -208,24 +208,25 @@ As cores ativa/inativa indicam a aba selecionada. O espaço inferior considera `
 
 ### O rascunho do formulário
 
-Em `perfil.tsx`, `savedProfile` vem da store e `form` é a cópia local em edição. Digitar não altera imediatamente o perfil compartilhado. `useState` cria o rascunho inicial com os dados já carregados ou campos vazios e duração padrão de 60 s.
+Em `perfil.tsx`, `perfilSalvo` vem da store e `formulario` é a cópia local em edição. Digitar não altera imediatamente o perfil compartilhado. `useState` cria o rascunho inicial com os dados já carregados ou campos vazios e duração padrão de 60 s.
 
 | Função/estado | O que faz |
 | --- | --- |
-| `updateField(field, value)` | Atualiza um campo usando `[field]`, marca-o como tocado e esconde a confirmação anterior |
-| `markTouched(field)` | Marca que houve interação, inclusive ao sair do campo |
-| `touched` | Controla quais mensagens de validação podem aparecer |
-| `errors` | Resultado de validar o rascunho a cada renderização |
-| `showConfirmation` | Controla a mensagem de salvamento bem-sucedido |
-| `handleSave()` | Mostra todos os erros, interrompe se houver algum e solicita o salvamento válido |
+| `atualizarCampo(campo, valor)` | Atualiza um campo usando `[campo]`, permite mostrar os erros e esconde a confirmação anterior |
+| `mostrarErros` | Um booleano que libera as mensagens após uma interação ou tentativa de salvar |
+| `erros` | Resultado de validar o rascunho a cada renderização |
+| `mostrarConfirmacao` | Controla a mensagem de salvamento bem-sucedido |
+| `confirmarPerfil()` | Mostra os erros, interrompe se houver algum e solicita o salvamento válido |
 
-O botão Salvar fica bloqueado durante a gravação. Dados inválidos são impedidos dentro de `handleSave`; não dependemos de desabilitar o botão pela validade.
+As mensagens começam escondidas. Ao editar, sair de um campo ou tentar salvar, `mostrarErros` vira `true` e todos os campos inválidos podem mostrar mensagens. As regras continuam sendo recalculadas enquanto o usuário corrige os dados; não controlamos mais cada campo visitado separadamente.
+
+O botão Salvar fica bloqueado durante a gravação. Dados inválidos são impedidos dentro de `confirmarPerfil`; não dependemos de desabilitar o botão pela validade.
 
 ### Regras: `utils/validators.ts`
 
 [validateProfile](../src/utils/validators.ts) começa com o objeto `erros` vazio. Exige nome preenchido após `trim`, e-mail com formato básico, objetivo da lista e duração da lista. A expressão regular do e-mail verifica a estrutura; não consulta se a caixa existe. Não há tamanho mínimo adicional para o nome.
 
-`Object.keys(errors).length > 0` significa que há pelo menos uma mensagem. Sem erros, `handleSave` remove espaços externos de nome/e-mail e aguarda `saveProfile`. Somente se receber `true`, confirma o salvamento e fecha o teclado.
+`Object.keys(erros).length > 0` significa que há pelo menos uma mensagem. Sem erros, `confirmarPerfil` remove espaços externos de nome/e-mail e aguarda `salvarPerfil` (a ação `saveProfile` da store). Somente se receber `true`, confirma o salvamento e fecha o teclado.
 
 O cabeçalho mostra o perfil salvo, as iniciais e os pontos derivados das sessões. `KeyboardAvoidingView` ajusta a área de conteúdo no iOS; `ScrollView` permite acessar os campos e botões com rolagem.
 
@@ -332,11 +333,13 @@ Precisamos de refs porque callbacks podem continuar sendo chamados entre renderi
 
 ### Funções do controlador
 
-- `handleReading(value, timestamp)`: só aceita progresso em `running`; atualiza a leitura, calcula o intervalo desde a anterior e chama `advanceProgress`. Na primeira leitura não há intervalo anterior, então só estabelece a referência. Ao alcançar a duração, para os sensores, cria um único registro e entra em `finished`.
-- `handleError(error)`: limpa a referência temporal, apresenta a mensagem e coloca em pausa. O serviço de sensores já interrompe a coleta ao relatar a falha.
+- `receberLeitura(leitura, instante)`: só aceita progresso em `running`; atualiza a leitura, calcula o intervalo desde a anterior e chama `advanceProgress`. Na primeira leitura não há intervalo anterior, então só estabelece a referência. Ao alcançar a duração, para os sensores, cria um único registro e entra em `finished`.
+- `receberErro(erro)`: limpa a referência temporal, apresenta a mensagem e coloca em pausa. O serviço de sensores já interrompe a coleta ao relatar a falha.
 - `pause()`: se está rodando ou verificando, para a coleta, limpa o instante anterior e entra em pausa. Não apaga o progresso.
 - `start()`: permite começar ou retomar, limpa a leitura/mensagem anterior e passa por `checking`. Aguarda `sensors.start()` e só entra em `running` se aquela verificação ainda estiver vigente.
 - `reset()`: para a coleta e limpa progresso, leitura, mensagem e resultado, voltando a `ready`. Não apaga o histórico de sessões já salvas.
+
+`receberLeitura` e `receberErro` ficam dentro do efeito que cria o serviço, pois só são usadas ali. `start` e `reset` são funções comuns. `changeStatus` e `pause` usam `useCallback` para manter referências estáveis: os efeitos dependem delas e não devem desligar e recriar a coleta a cada leitura.
 
 O efeito principal cria o serviço e escuta `AppState`. `background` pausa a atividade; `inactive` também pausa quando já estava rodando. A exceção durante a verificação evita interpretar o próprio diálogo de permissão como uma pausa indevida.
 
@@ -467,14 +470,14 @@ A leitura com mais tempo pesa mais. Fazer apenas `(100 + 50) / 2` daria 75 e nã
 
 [ZenSession](../src/components/ZenSession.tsx) liga o controlador à interface:
 
-- `remaining` converte os milissegundos acumulados em segundos restantes usando `Math.ceil` e evita valores negativos.
-- `clock` divide por 60, usa o resto `% 60` e preenche zeros com `padStart`: `00:30`, por exemplo.
+- `segundosRestantes` converte os milissegundos acumulados em segundos restantes usando `Math.ceil` e evita valores negativos.
+- `cronometro` divide por 60, usa o resto `% 60` e preenche zeros com `padStart`: `00:30`, por exemplo.
 - A esfera usa `translateX`/`translateY`: deslocamento normalizado × 90, menos 14 para centralizar o elemento de 28 px. Não é um novo cálculo da nota.
-- A instrução e os botões mudam com `status`: Começar, Verificando, Pausar, Retomar, Recomeçar ou Salvar.
-- `hasTriedSaving` evita exibir como erro desta tentativa uma mensagem anterior da store antes de tocar em Salvar.
-- `mounted` indica se o componente continua montado. Se ele saiu durante uma gravação, o término da promessa não deve abrir outra tela.
+- A instrução e os botões mudam com `status`: Começar, Verificando, Pausar, Retomar, Recomeçar ou Salvar. `textoBotao` é definido com condições simples antes do JSX. O mesmo `AppButton` serve para iniciar, retomar ou salvar; enquanto a sessão roda, aparece o botão de pausa.
+- `tentouSalvar` evita exibir como erro desta tentativa uma mensagem anterior da store antes de tocar em Salvar.
+- `componenteMontado` indica se o componente continua montado. Se ele saiu durante uma gravação, o término da promessa não deve abrir outra tela.
 
-`saveResult` só atua se existe `session.result`, aguarda `saveSession` e chama `onSaved(id)` apenas no sucesso e enquanto montado. Concluir a duração não envia dados à API e não salva automaticamente no histórico.
+`salvarResultado` só atua se existe `sessao.result`, aguarda `salvarSessao` (a ação `saveSession` da store) e chama `onSaved(id)` apenas no sucesso e enquanto montado. Concluir a duração não envia dados à API e não salva automaticamente no histórico.
 
 ### `utils/sessionRecord.ts`
 
@@ -639,10 +642,10 @@ As fontes Nunito são carregadas de pacotes locais por `expo-font`. A geração 
 ### Exemplo A: salvar o perfil
 
 ```text
-Toque no campo → onChangeText → updateField → form local
+Toque no campo → onChangeText → atualizarCampo → formulario local
                                       ↓
                              validateProfile → erros visuais
-Toque em Salvar → handleSave → saveProfile (Zustand)
+Toque em Salvar → confirmarPerfil → saveProfile (Zustand)
                                       ↓
                      writeProfile → stringify → AsyncStorage
                                       ↓ sucesso
@@ -663,11 +666,11 @@ Atividades: openSession(30)
  → acelerômetro atualiza aceleração
  → giroscópio combina os sinais e chama calculateStability
  → onReading entrega nota, faixa e posição ao hook
- → handleReading chama advanceProgress
+ → receberLeitura chama advanceProgress
  → React atualiza esfera, cronômetro e indicadores
  → ao completar: stop + createSessionRecord + finished
  → usuário toca Salvar e ver resultado
- → saveResult chama saveSession da store
+ → salvarResultado chama saveSession da store
  → writeSessions grava a lista no AsyncStorage
  → store recebe a lista atualizada
  → onSaved(id) substitui a rota por Resultado
@@ -894,7 +897,7 @@ O foco de estudo é conseguir ligar a ação visível ao arquivo responsável. U
 ### Respostas para conferir depois
 
 1. O seletor é local; ao receber foco, `useFocusEffect` copia novamente a preferência salva de 45 s. Selecionar 30 s ali não grava o Perfil.
-2. `validators.ts` cria; `FormField` apresenta quando a tela entrega `error`; `handleSave` interrompe se há erros.
+2. `validators.ts` cria; `FormField` apresenta quando a tela entrega `error`; `confirmarPerfil` interrompe se há erros.
 3. `profileStorage.writeProfile` e `sessionStorage.writeSessions`, aguardadas por `saveProfile` e `saveSession`.
 4. A gravação usa o aparelho, sem depender do Axios; o Histórico lê a store carregada do AsyncStorage.
 5. `elapsedMs` +100; `stableMs` +100; `weightedScore` +8000. Esses valores são acrescidos ao progresso anterior, respeitando o tempo restante.
@@ -902,7 +905,7 @@ O foco de estudo é conseguir ligar a ação visível ao arquivo responsável. U
 7. Dois POSTs, para B/C; depois, zero se os três IDs estiverem no servidor.
 8. `theme.ts` para cor e `motion.ts` para sensibilidade do jogo.
 9. Limpeza do efeito e `pause` no hook; comparação `attempt !== revision` no serviço.
-10. `handleReading` gera resultado; `saveResult`/store gravam; `SessionSync`/mutation enviam.
+10. `receberLeitura` gera resultado; `salvarResultado`/store gravam; `SessionSync`/mutation enviam.
 
 ### Checklist individual
 

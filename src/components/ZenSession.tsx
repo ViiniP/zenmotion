@@ -57,6 +57,14 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
     .padStart(2, "0")}:${(segundosRestantes % 60).toString().padStart(2, "0")}`;
   const media = averageStability(sessao.progress);
   const finalizada = sessao.status === "finished";
+  const verificando = sessao.status === "checking";
+
+  let textoBotao = "Começar";
+  if (sessao.status === "paused") textoBotao = "Retomar";
+  if (sessao.message) textoBotao = "Tentar novamente";
+  if (verificando) textoBotao = "Verificando...";
+  if (finalizada)
+    textoBotao = salvando ? "Salvando..." : "Salvar e ver resultado";
 
   let instrucao =
     "Segure o celular deitado, com a tela para cima, e mantenha a esfera no centro.";
@@ -186,7 +194,10 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
               accessibilityRole="button"
               accessibilityLabel="Pausar"
               onPress={sessao.pause}
-              style={({ pressed: pressionado }) => [estilos.pausar, pressionado && estilos.pressionado]}
+              style={({ pressed: pressionado }) => [
+                estilos.pausar,
+                pressionado && estilos.pressionado,
+              ]}
             >
               <Ionicons
                 name="pause"
@@ -196,25 +207,11 @@ export function ZenSession({ duration, onExit, onSaved }: ZenSessionProps) {
                 aria-hidden
               />
             </Pressable>
-          ) : finalizada ? (
-            <AppButton
-              title={salvando ? "Salvando..." : "Salvar e ver resultado"}
-              onPress={salvarResultado}
-              disabled={salvando}
-            />
           ) : (
             <AppButton
-              title={
-                sessao.status === "checking"
-                  ? "Verificando..."
-                  : sessao.message
-                    ? "Tentar novamente"
-                    : sessao.status === "paused"
-                      ? "Retomar"
-                      : "Começar"
-              }
-              onPress={sessao.start}
-              disabled={sessao.status === "checking"}
+              title={textoBotao}
+              onPress={finalizada ? salvarResultado : sessao.start}
+              disabled={salvando || verificando}
             />
           )}
           {sessao.status === "paused" && (
